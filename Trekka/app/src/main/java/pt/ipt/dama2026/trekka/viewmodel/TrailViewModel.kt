@@ -1,0 +1,33 @@
+package pt.ipt.dama2026.trekka.viewmodel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.asLiveData
+import kotlinx.coroutines.launch
+import pt.ipt.dama2026.trekka.data.repository.TrailRepository
+
+/**
+ * Classe que representa o ViewModel da tela principal
+ */
+
+class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
+
+    // Lista de trilhas
+    val trails = repo.trails.asLiveData()
+
+    private val _currentTrailId = MutableLiveData<Long?>()
+    val currentTrailId: LiveData<Long?> = _currentTrailId
+
+    // Inicia uma nova trilha
+    fun startNewTrail(name: String) = viewModelScope.launch {
+        val id = repo.createTrail(name)
+        _currentTrailId.value = id
+    }
+
+    // Adiciona um novo ponto à trilha
+    fun addPoint(lat: Double, lon: Double, idx: Int) = viewModelScope.launch {
+        _currentTrailId.value?.let { repo.addPoint(it, lat, lon, idx) }
+    }
+}
