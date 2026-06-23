@@ -18,7 +18,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Trekka">
+        android:theme="@style/Theme.Trekka"
+        android:name=".TrekkaApplication">
 
         <service
             android:name=".service.TrackingService"
@@ -34,6 +35,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".HistoryActivity"
+            android:exported="false"
+            android:label="Histórico de Trilhos"/>
+
     </application>
 
 </manifest>

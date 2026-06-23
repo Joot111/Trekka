@@ -14,7 +14,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import pt.ipt.dama2026.trekka.service.TrackingService
+import pt.ipt.dama2026.trekka.viewmodel.TrailViewModel
+import pt.ipt.dama2026.trekka.viewmodel.TrailViewModelFactory
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,27 +39,27 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+        val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
+        val viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
+
+        startActivity(Intent(this, HistoryActivity::class.java))
+
         // botão iniciar
         val startButton = findViewById<Button>(R.id.startButton)
         startButton.setOnClickListener {
-            // cria o intent do service
-            val svcIntent = Intent(this, TrackingService::class.java)
+            // 1. Criar o trilho no DB
+            viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
 
-            // verifica se já temos permissão
-            val hasFineLocation = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-
-            if (hasFineLocation) {
-                // Iniciar o serviço (usa startForegroundService para Android O+)
-                ContextCompat.startForegroundService(this, svcIntent)
-            } else {
-                // Pedir permissão; o callback iniciará o serviço se for concedida
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            // 2. Observar o ID gerado e iniciar o serviço
+            viewModel.currentTrailId.observe(this) { id ->
+                if (id != null) {
+                    val svcIntent = Intent(this, TrackingService::class.java).apply {
+                        putExtra("TRAIL_ID", id)
+                    }
+                    ContextCompat.startForegroundService(this, svcIntent)
+                }
             }
         }
-
 
         // Ajustar padding para as barras do sistema
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
