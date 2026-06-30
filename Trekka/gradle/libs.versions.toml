@@ -11,6 +11,7 @@ activity = "1.13.0"
 activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
 playServicesLocation = "21.3.0"
+playServicesMaps = "20.0.0"
 roomCommonJvm = "2.8.4"
 roomKtx = "2.8.4"
 room = "2.8.4"
@@ -35,6 +36,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

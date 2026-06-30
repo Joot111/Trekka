@@ -1,5 +1,6 @@
 package pt.ipt.dama2026.trekka
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
@@ -25,28 +26,34 @@ class HistoryActivity : AppCompatActivity() {
 
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
         btnBack.setOnClickListener {
-            // Fecha esta Activity e volta para a anterior (MainActivity)
             finish()
         }
 
-        // Configurar o RecyclerView
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewTrails)
-        adapter = TrailAdapter(emptyList())
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Inicializar ViewModel (usando a mesma lógica da MainActivity)
+        // 1. Inicializar o ViewModel primeiro
         val repository = (application as TrekkaApplication).repository
         val factory = TrailViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
 
-        // Observar a lista de trilhos e atualizar o adapter automaticamente
+        // 2. Configurar o RecyclerView com o Adapter correto
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewTrails)
+        
+        adapter = TrailAdapter(emptyList()) { trail ->
+            // Quando clicamos num trilho, vamos para o mapa (ainda por criar)
+            // val intent = Intent(this, MapsActivity::class.java)
+            // intent.putExtra("TRAIL_ID", trail.id)
+            // startActivity(intent)
+        }
+        
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        // 3. Observar a lista de trilhos
         viewModel.trails.observe(this) { listaDeTrilhos ->
             adapter.updateData(listaDeTrilhos)
         }
 
-        // Ajustar padding para as system bars (Edge-to-Edge)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerViewTrails)) { v, insets ->
+        // Ajustar padding para as system bars
+        ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(0, 0, 0, systemBars.bottom)
             insets

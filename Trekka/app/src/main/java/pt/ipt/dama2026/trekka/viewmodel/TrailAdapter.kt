@@ -8,7 +8,9 @@ import pt.ipt.dama2026.trekka.data.model.Trail
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TrailAdapter(private var trails: List<Trail>) : RecyclerView.Adapter<TrailAdapter.ViewHolder>() {
+class TrailAdapter(private var trails: List<Trail>,
+                   private val onItemClick: (Trail) -> Unit
+    ) : RecyclerView.Adapter<TrailAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.trailName)
         val date: TextView = view.findViewById(R.id.trailDate)
@@ -18,6 +20,7 @@ class TrailAdapter(private var trails: List<Trail>) : RecyclerView.Adapter<Trail
         val trail = trails[position]
         holder.name.text = trail.name
         holder.date.text = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(trail.createdAt))
+        holder.itemView.setOnClickListener { onItemClick(trail) }
     }
     override fun getItemCount() = trails.size
     fun updateData(newTrails: List<Trail>) { trails = newTrails; notifyDataSetChanged() }
