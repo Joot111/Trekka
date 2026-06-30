@@ -3,6 +3,7 @@ package pt.ipt.dama2026.trekka.service
 import android.Manifest
 import android.app.*
 import android.content.*
+import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.os.Looper
 import androidx.annotation.RequiresPermission
@@ -44,15 +45,22 @@ class TrackingService : Service() {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         currentTrailId = intent?.getLongExtra("TRAIL_ID", -1) ?: -1
-        startForeground(NOTIF_ID, buildNotification())
+
+        // Para Android 14+, precisamos de passar o tipo de serviço
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(NOTIF_ID, buildNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            startForeground(NOTIF_ID, buildNotification())
+        }
+
         startTracking()
         return START_STICKY
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun startTracking() {
-        val req = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000L)
-            .setMinUpdateIntervalMillis(2000L)
+        val req = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000L)
+            .setMinUpdateIntervalMillis(5000L)
             .build()
         fused.requestLocationUpdates(req, locationCallback, Looper.getMainLooper())
     }

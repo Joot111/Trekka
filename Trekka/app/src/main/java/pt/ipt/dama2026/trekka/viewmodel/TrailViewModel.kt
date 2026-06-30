@@ -30,4 +30,9 @@ class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
     fun addPoint(lat: Double, lon: Double, idx: Int) = viewModelScope.launch {
         _currentTrailId.value?.let { repo.addPoint(it, lat, lon, idx) }
     }
+
+    // Limpa o ID da trilha atual para evitar re-emissão de eventos (como ao rodar o ecrã)
+    fun resetCurrentTrailId() {
+        _currentTrailId.value = null
+    }
 }

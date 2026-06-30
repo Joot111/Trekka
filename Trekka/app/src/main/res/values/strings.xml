@@ -3,4 +3,7 @@
     <string name="subtitle_app">Descobre e regista os teus trilhos</string>
     <string name="start_button">Começar</string>
     <string name="lang_tag">PT</string>
+    <string name="ver_historico">Ver Histórico</string>
+    <string name="voltar">Voltar</string>
+    <string name="os_meus_trilhos">Os Meus Trilhos</string>
 </resources>

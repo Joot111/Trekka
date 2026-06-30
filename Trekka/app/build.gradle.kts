@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.devtools.ksp")
 }
-
 android {
     namespace = "pt.ipt.dama2026.trekka"
     compileSdk {
@@ -40,6 +40,8 @@ dependencies {
     // Room
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
 
     // Lifecycle
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")

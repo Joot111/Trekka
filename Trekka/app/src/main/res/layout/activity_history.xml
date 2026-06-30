@@ -5,15 +5,27 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/voltar"
+        android:src="@android:drawable/ic_menu_revert" />
+
     <TextView
         style="@style/titulo_app"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Os Meus Trilhos" />
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="0dp"
+        android:textSize="24sp"
+        android:padding="8dp"
+        android:text="@string/os_meus_trilhos" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewTrails"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp" />
+        android:layout_height="match_parent" />
+
 </LinearLayout>

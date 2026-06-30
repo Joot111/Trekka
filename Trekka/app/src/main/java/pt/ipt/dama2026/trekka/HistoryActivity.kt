@@ -1,6 +1,7 @@
 package pt.ipt.dama2026.trekka
 
 import android.os.Bundle
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -21,6 +22,12 @@ class HistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_history)
+
+        val btnBack = findViewById<ImageButton>(R.id.btnBack)
+        btnBack.setOnClickListener {
+            // Fecha esta Activity e volta para a anterior (MainActivity)
+            finish()
+        }
 
         // Configurar o RecyclerView
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewTrails)
