@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.devtools.ksp")
 }
-
 android {
     namespace = "pt.ipt.dama2026.trekka"
     compileSdk {
@@ -37,9 +37,15 @@ android {
 
 dependencies {
 
+    // GoogleMaps
+    //implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation(libs.play.services.maps)
+
     // Room
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
 
     // Lifecycle
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")

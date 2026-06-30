@@ -9,7 +9,8 @@ import androidx.room.PrimaryKey
  * Entidade que representa a trilha na Base de Dados
  * @see Trail
  */
-@Entity(tableName = "trail_points",
+@Entity(
+    tableName = "trail_points",
     indices = [Index("trailId")],
     foreignKeys = [ForeignKey(
         entity = Trail::class,

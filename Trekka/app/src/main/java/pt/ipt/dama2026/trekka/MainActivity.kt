@@ -1,6 +1,7 @@
 package pt.ipt.dama2026.trekka
 
 import android.Manifest
+import android.app.ActivityManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -14,68 +15,100 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import pt.ipt.dama2026.trekka.service.TrackingService
+import pt.ipt.dama2026.trekka.viewmodel.TrailViewModel
+import pt.ipt.dama2026.trekka.viewmodel.TrailViewModelFactory
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // registar launcher para pedir permissão
-        val requestPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
-                    // Permissão concedida: iniciar o service
-                    val svcIntent = Intent(this, TrackingService::class.java)
-                    ContextCompat.startForegroundService(this, svcIntent)
-                } else {
-                    // Permissão negada: informar o utilizador
-                    // Toast / Snackbar / UI feedback
-                }
-            }
-
-        // botão iniciar
+        // 1. PRIMEIRO: Encontrar os botões no layout
         val startButton = findViewById<Button>(R.id.startButton)
-        startButton.setOnClickListener {
-            // cria o intent do service
-            val svcIntent = Intent(this, TrackingService::class.java)
+        val historyButton = findViewById<Button>(R.id.historyButton)
+        val languageBox = findViewById<TextView>(R.id.languageBox)
 
-            // verifica se já temos permissão
-            val hasFineLocation = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+        // 2. SEGUNDO: Inicializar o ViewModel
+        val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
+        val viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
 
-            if (hasFineLocation) {
-                // Iniciar o serviço (usa startForegroundService para Android O+)
-                ContextCompat.startForegroundService(this, svcIntent)
-            } else {
-                // Pedir permissão; o callback iniciará o serviço se for concedida
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        // 3. TERCEIRO: Configurar o Launcher de Permissões (agora ele já conhece o startButton)
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
+                startButton.text = getString(R.string.stop_button)
             }
         }
 
+        // 4. Configurar o Observer para iniciar o serviço quando o ID for criado
+        viewModel.currentTrailId.observe(this) { id ->
+            if (id != null) {
+                val svcIntent = Intent(this, TrackingService::class.java).apply {
+                    putExtra("TRAIL_ID", id)
+                }
+                ContextCompat.startForegroundService(this, svcIntent)
+                viewModel.resetCurrentTrailId()
+            }
+        }
 
-        // Ajustar padding para as barras do sistema
+        // 5. Definir o texto inicial do botão se o serviço já estiver a correr
+        if (isServiceRunning(TrackingService::class.java)) {
+            startButton.text = getString(R.string.stop_button)
+        }
+
+        // Clique do botão Iniciar/Parar
+        startButton.setOnClickListener {
+            if (isServiceRunning(TrackingService::class.java)) {
+                stopService(Intent(this, TrackingService::class.java))
+                startButton.text = getString(R.string.start_button)
+            } else {
+                val hasLocationPermission = ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (hasLocationPermission) {
+                    viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
+                    startButton.text = getString(R.string.stop_button)
+                } else {
+                    requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                }
+            }
+        }
+
+        // Clique do botão Histórico
+        historyButton.setOnClickListener {
+            startActivity(Intent(this, HistoryActivity::class.java))
+        }
+
+        // Ajustar padding das barras do sistema
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Lógica de troca de idioma
-        val languageBox = findViewById<TextView>(R.id.languageBox)
+        // Clique para trocar idioma
         languageBox.setOnClickListener {
-            // Obter o idioma atual (ou "pt" como padrão)
             val currentLocale = AppCompatDelegate.getApplicationLocales()[0]?.language ?: "pt"
-            
-            // Alternar entre PT e EN
             val newLocale = if (currentLocale == "pt") "en" else "pt"
-            
-            // Aplicar o novo idioma
             val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(newLocale)
             AppCompatDelegate.setApplicationLocales(appLocale)
         }
+    }
+
+    // Função auxiliar para verificar o estado do serviço
+    private fun <T> isServiceRunning(serviceClass: Class<T>): Boolean {
+        val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        @Suppress("DEPRECATION")
+        for (service in am.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) return true
+        }
+        return false
     }
 }

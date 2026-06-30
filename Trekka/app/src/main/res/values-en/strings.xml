@@ -4,4 +4,8 @@
     <string name="subtitle_app">Discover and track your trails</string>
     <string name="start_button">Start</string>
     <string name="lang_tag">EN</string>
+    <string name="ver_historico">View History</string>
+    <string name="voltar">Back</string>
+    <string name="os_meus_trilhos">My Trails</string>
+    <string name="stop_button">Stop</string>
 </resources>
