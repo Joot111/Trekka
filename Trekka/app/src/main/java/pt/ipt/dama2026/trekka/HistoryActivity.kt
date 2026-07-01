@@ -38,10 +38,10 @@ class HistoryActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewTrails)
         
         adapter = TrailAdapter(emptyList()) { trail ->
-            // Quando clicamos num trilho, vamos para o mapa (ainda por criar)
-            // val intent = Intent(this, MapsActivity::class.java)
-            // intent.putExtra("TRAIL_ID", trail.id)
-            // startActivity(intent)
+            // Quando clicamos num trilho, vamos para o mapa
+            val intent = Intent(this, MapsActivity::class.java)
+            intent.putExtra("TRAIL_ID", trail.id)
+            startActivity(intent)
         }
         
         recyclerView.adapter = adapter

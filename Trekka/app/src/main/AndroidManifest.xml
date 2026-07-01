@@ -42,6 +42,15 @@
             android:exported="false"
             android:label="Histórico de Trilhos"/>
 
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false"
+            android:label="Mapa do Trilho" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBKLOUzzIcqVvIa05jiei7_9CY7W-J7hxA" />
+
     </application>
 
 </manifest>
