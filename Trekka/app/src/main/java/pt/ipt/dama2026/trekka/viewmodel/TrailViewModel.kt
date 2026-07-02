@@ -35,4 +35,14 @@ class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
     fun resetCurrentTrailId() {
         _currentTrailId.value = null
     }
+
+    // Elimina um trilho
+    fun deleteTrail(id: Long) = viewModelScope.launch {
+        repo.deleteTrail(id)
+    }
+
+    // Renomeia um trilho
+    fun renameTrail(id: Long, newName: String) = viewModelScope.launch {
+        repo.renameTrail(id, newName)
+    }
 }
