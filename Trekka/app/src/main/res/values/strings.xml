@@ -7,4 +7,12 @@
     <string name="voltar">Voltar</string>
     <string name="os_meus_trilhos">Os Meus Trilhos</string>
     <string name="stop_button">Parar</string>
+    <string name="editar_nome">Editar nome</string>
+    <string name="apagar_trilho">Apagar trilho</string>
+    <string name="edit_trail_title">Editar nome do trilho</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete_trail_title">Apagar trilho</string>
+    <string name="delete_trail_msg">Tem a certeza que deseja apagar este trilho?</string>
+    <string name="delete">Apagar</string>
 </resources>

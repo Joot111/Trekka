@@ -32,6 +32,26 @@ class TrailRepository(private val db: TrekkaDatabase) {
         )
     }
 
+    // Atualiza o trilho com os dados finais
+    suspend fun updateTrail(trail: Trail) {
+        db.trailDao().update(trail)
+    }
+
+    // Elimina um trilho e os seus pontos (o CASCADE trata dos pontos)
+    suspend fun deleteTrail(trailId: Long) {
+        db.trailDao().deleteById(trailId)
+    }
+
+    // Edita apenas o nome
+    suspend fun renameTrail(trailId: Long, newName: String) {
+        db.trailDao().updateName(trailId, newName)
+    }
+
+    // Atualiza as estatísticas finais
+    suspend fun updateTrailStats(trailId: Long, distance: Double, duration: Long) {
+        db.trailDao().updateStats(trailId, distance, duration)
+    }
+
     // Remove todos os pontos de uma trilha
     fun getPoints(trailId: Long) = db.trailPointDao().getPointsForTrail(trailId)
 }
