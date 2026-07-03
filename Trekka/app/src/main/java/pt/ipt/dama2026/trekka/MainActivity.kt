@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         val historyButton = findViewById<Button>(R.id.historyButton)
         val languageBox = findViewById<TextView>(R.id.languageBox)
         val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
+        val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
 
         // 2. SEGUNDO: Inicializar o ViewModel
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
@@ -109,6 +110,16 @@ class MainActivity : AppCompatActivity() {
         // Clique para abrir o Sobre
         aboutButton.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
+        }
+
+        // Clique para alternar o Tema (Claro/Escuro)
+        themeButton.setOnClickListener {
+            val currentMode = AppCompatDelegate.getDefaultNightMode()
+            if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
         }
     }
 

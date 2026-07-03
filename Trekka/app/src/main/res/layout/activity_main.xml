@@ -26,8 +26,17 @@
         <TextView
             android:id="@+id/languageBox"
             style="@style/caixa_linguagem"
-            android:layout_alignParentEnd="true"
+            android:layout_toStartOf="@id/themeButton"
+            android:layout_marginEnd="8dp"
             android:text="@string/lang_tag" />
+
+        <ImageButton
+            android:id="@+id/themeButton"
+            style="@style/caixa_linguagem"
+            android:layout_alignParentEnd="true"
+            android:src="@android:drawable/ic_menu_compass"
+            android:contentDescription="@string/theme_button_desc"
+            app:tint="@color/white" />
     </RelativeLayout>
 
     <!-- Conteúdo Central -->

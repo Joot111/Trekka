@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="green_primary">#A5D6A7</color>      <!-- Verde mais claro para brilhar no escuro -->
+    <color name="green_light">#81C784</color>
+    <color name="green_pale">#2E7D32</color>
+
+    <color name="background">#121212</color>         <!-- Fundo quase preto padrão Android -->
+    <color name="card_bg">#1E1E1E</color>            <!-- Cinzento escuro para os cartões -->
+
+    <color name="text_dark">#FDFEFE</color>          <!-- Texto quase branco -->
+    <color name="text_medium">#BDC3C7</color>        <!-- Texto cinzento suave -->
+
+    <color name="white">#1E1E1E</color>              <!-- Inverter para botões se necessário -->
+    <color name="black">#FFFFFFFF</color>
+</resources>

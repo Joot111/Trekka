@@ -3,6 +3,7 @@ package pt.ipt.dama2026.trekka.viewmodel
 import android.view.*
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.dama2026.trekka.R
 import pt.ipt.dama2026.trekka.data.model.Trail
@@ -36,7 +37,21 @@ class TrailAdapter(
         // Formatação das métricas
         val distanceKm = trail.distanceMeters / 1000
         val durationFormatted = formatDuration(trail.durationSeconds)
-        holder.metrics.text = String.format(Locale.getDefault(), "%.2f km | %s", distanceKm, durationFormatted)
+        
+        // Cálculo da Velocidade Média (km/h)
+        val speedKmH = if (trail.durationSeconds > 0) {
+            (distanceKm / (trail.durationSeconds / 3600.0))
+        } else {
+            0.0
+        }
+
+        holder.metrics.text = String.format(
+            Locale.getDefault(),
+            "%.2f km | %s | %.1f km/h",
+            distanceKm,
+            durationFormatted,
+            speedKmH
+        )
 
         holder.itemView.setOnClickListener { onItemClick(trail) }
         holder.btnEdit.setOnClickListener { onEditClick(trail) }
@@ -46,8 +61,11 @@ class TrailAdapter(
     override fun getItemCount() = trails.size
 
     fun updateData(newTrails: List<Trail>) {
+        val diffCallback = TrailDiffCallback(trails, newTrails)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        
         trails = newTrails
-        notifyDataSetChanged()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     private fun formatDuration(seconds: Long): String {
@@ -58,6 +76,22 @@ class TrailAdapter(
             String.format(Locale.getDefault(), "%02d:%02d:%02d", h, m, s)
         } else {
             String.format(Locale.getDefault(), "%02d:%02d", m, s)
+        }
+    }
+
+    class TrailDiffCallback(
+        private val oldList: List<Trail>,
+        private val newList: List<Trail>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+        override fun getNewListSize() = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
 }

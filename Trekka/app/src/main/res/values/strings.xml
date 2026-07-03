@@ -25,4 +25,5 @@
     <string name="libraries_title">Bibliotecas Utilizadas</string>
     <string name="libraries_list">Room, Google Play Services (Location &amp; Maps), Kotlin Coroutines, Secrets Gradle Plugin</string>
     <string name="about_button_desc">Sobre a aplicação</string>
+    <string name="theme_button_desc">Alternar Modo Claro/Escuro</string>
 </resources>
