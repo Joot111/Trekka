@@ -1,28 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
     tools:context=".MainActivity">
 
-    <!-- Caixa de Idioma -->
-    <TextView
-        android:id="@+id/languageBox"
-        style="@style/caixa_linguagem"
-        android:layout_gravity="top|end"
-        android:layout_margin="16dp"
-        android:text="@string/lang_tag" />
+    <!-- Top Bar: Botão Sobre e Seletor de Idioma -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/aboutButton"
+            style="@style/caixa_linguagem"
+            android:layout_alignParentStart="true"
+            android:src="@android:drawable/ic_menu_info_details"
+            android:contentDescription="@string/about_button_desc"
+            app:tint="@color/white" />
+
+        <TextView
+            android:id="@+id/languageBox"
+            style="@style/caixa_linguagem"
+            android:layout_toStartOf="@id/themeButton"
+            android:layout_marginEnd="8dp"
+            android:text="@string/lang_tag" />
+
+        <ImageButton
+            android:id="@+id/themeButton"
+            style="@style/caixa_linguagem"
+            android:layout_alignParentEnd="true"
+            android:src="@android:drawable/ic_menu_compass"
+            android:contentDescription="@string/theme_button_desc"
+            app:tint="@color/white" />
+    </RelativeLayout>
 
     <!-- Conteúdo Central -->
     <LinearLayout
-        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="24dp">
 
         <TextView
             android:id="@+id/appTitle"
@@ -39,14 +62,15 @@
             style="@style/botao_principal"
             android:background="@drawable/button_ripple"
             android:text="@string/start_button"
+            android:layout_marginBottom="16dp"
             app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/historyButton"
             style="@style/botao_principal"
-            android:layout_marginTop="16dp"
             android:background="@drawable/button_ripple"
             android:text="@string/ver_historico"
+            android:alpha="0.85"
             app:backgroundTint="@null" />
 
     </LinearLayout>

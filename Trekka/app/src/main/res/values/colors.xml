@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
+    <!-- Paleta Principal (Natureza/Hiking) -->
+    <color name="green_primary">#2D5A27</color>      <!-- Verde Floresta Profundo -->
+    <color name="green_light">#4E8D46</color>        <!-- Verde Relva -->
+    <color name="green_pale">#A5D6A7</color>         <!-- Verde Suave para fundos -->
+
+    <!-- Cores de Destaque -->
+    <color name="accent_earth">#8D6E63</color>       <!-- Castanho Terra -->
+    <color name="accent_orange">#E67E22</color>      <!-- Laranja Aventura -->
+    <color name="danger_red">#C0392B</color>         <!-- Vermelho Alerta (para Stop) -->
+
+    <!-- Neutras e Fundo -->
+    <color name="background">#F8F9F9</color>         <!-- Off-white muito suave -->
+    <color name="card_bg">#FFFFFF</color>
+    <color name="text_dark">#1C2833</color>          <!-- Azul/Preto muito escuro -->
+    <color name="text_medium">#566573</color>        <!-- Cinzento para subtítulos -->
+
     <color name="white">#FFFFFFFF</color>
-    <color name="green_primary">#2E7D32</color>
-    <color name="green_light">#66BB6A</color>
-    <color name="background">#F5F5F5</color>
-    <color name="text_dark">#1B1B1B</color>
-    <color name="text_light">#666666</color>
+    <color name="black">#FF000000</color>
 </resources>

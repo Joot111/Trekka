@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#FFCDD2"> <!-- Efeito avermelhado -->
+
+    <item>
+        <shape>
+            <solid android:color="@color/danger_red" />
+            <corners android:radius="16dp" />
+        </shape>
+    </item>
+
+</ripple>

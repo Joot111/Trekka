@@ -31,6 +31,8 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.startButton)
         val historyButton = findViewById<Button>(R.id.historyButton)
         val languageBox = findViewById<TextView>(R.id.languageBox)
+        val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
+        val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
 
         // 2. SEGUNDO: Inicializar o ViewModel
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity() {
             if (isGranted) {
                 viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
                 startButton.text = getString(R.string.stop_button)
+                startButton.setBackgroundResource(R.drawable.button_stop_ripple)
             }
         }
 
@@ -60,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         // 5. Definir o texto inicial do botão se o serviço já estiver a correr
         if (isServiceRunning(TrackingService::class.java)) {
             startButton.text = getString(R.string.stop_button)
+            startButton.setBackgroundResource(R.drawable.button_stop_ripple)
         }
 
         // Clique do botão Iniciar/Parar
@@ -67,6 +71,7 @@ class MainActivity : AppCompatActivity() {
             if (isServiceRunning(TrackingService::class.java)) {
                 stopService(Intent(this, TrackingService::class.java))
                 startButton.text = getString(R.string.start_button)
+                startButton.setBackgroundResource(R.drawable.button_ripple)
             } else {
                 val hasLocationPermission = ContextCompat.checkSelfPermission(
                     this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -75,6 +80,7 @@ class MainActivity : AppCompatActivity() {
                 if (hasLocationPermission) {
                     viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
                     startButton.text = getString(R.string.stop_button)
+                    startButton.setBackgroundResource(R.drawable.button_stop_ripple)
                 } else {
                     requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
@@ -99,6 +105,21 @@ class MainActivity : AppCompatActivity() {
             val newLocale = if (currentLocale == "pt") "en" else "pt"
             val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(newLocale)
             AppCompatDelegate.setApplicationLocales(appLocale)
+        }
+
+        // Clique para abrir o Sobre
+        aboutButton.setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
+        }
+
+        // Clique para alternar o Tema (Claro/Escuro)
+        themeButton.setOnClickListener {
+            val currentMode = AppCompatDelegate.getDefaultNightMode()
+            if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
         }
     }
 
