@@ -19,6 +19,7 @@ class TrailAdapter(
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.trailName)
         val date: TextView = view.findViewById(R.id.trailDate)
+        val metrics: TextView = view.findViewById(R.id.trailMetrics)
         val btnEdit: ImageButton = view.findViewById(R.id.btnEditTrail)
         val btnDelete: ImageButton = view.findViewById(R.id.btnDeleteTrail)
     }
@@ -32,6 +33,11 @@ class TrailAdapter(
         holder.date.text =
             SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(trail.createdAt))
 
+        // Formatação das métricas
+        val distanceKm = trail.distanceMeters / 1000
+        val durationFormatted = formatDuration(trail.durationSeconds)
+        holder.metrics.text = String.format(Locale.getDefault(), "%.2f km | %s", distanceKm, durationFormatted)
+
         holder.itemView.setOnClickListener { onItemClick(trail) }
         holder.btnEdit.setOnClickListener { onEditClick(trail) }
         holder.btnDelete.setOnClickListener { onDeleteClick(trail) }
@@ -42,5 +48,16 @@ class TrailAdapter(
     fun updateData(newTrails: List<Trail>) {
         trails = newTrails
         notifyDataSetChanged()
+    }
+
+    private fun formatDuration(seconds: Long): String {
+        val h = seconds / 3600
+        val m = (seconds % 3600) / 60
+        val s = seconds % 60
+        return if (h > 0) {
+            String.format(Locale.getDefault(), "%02d:%02d:%02d", h, m, s)
+        } else {
+            String.format(Locale.getDefault(), "%02d:%02d", m, s)
+        }
     }
 }
