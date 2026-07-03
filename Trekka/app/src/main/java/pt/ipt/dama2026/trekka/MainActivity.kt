@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         val languageBox = findViewById<TextView>(R.id.languageBox)
         val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
         val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
+        val logoutButton = findViewById<android.widget.ImageButton>(R.id.logoutButton)
 
         // 2. SEGUNDO: Inicializar o ViewModel
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
@@ -110,6 +111,13 @@ class MainActivity : AppCompatActivity() {
         // Clique para abrir o Sobre
         aboutButton.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
+        }
+
+        // Clique para Logout
+        logoutButton.setOnClickListener {
+            pt.ipt.dama2026.trekka.data.api.SessionManager(this).logout()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
         }
 
         // Clique para alternar o Tema (Claro/Escuro)

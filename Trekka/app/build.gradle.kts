@@ -42,6 +42,11 @@ dependencies {
     //implementation("com.google.android.gms:play-services-maps:19.0.0")
     implementation(libs.play.services.maps)
 
+    // Retrofit & JSON
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.gson)
+
     // Room
     implementation(libs.androidx.room.common.jvm)
     implementation(libs.androidx.room.ktx)
