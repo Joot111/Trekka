@@ -39,4 +39,6 @@
     <string name="login_error">Error logging in. Check your data.</string>
     <string name="register_success">Account created successfully</string>
     <string name="register_error">Error creating account.</string>
+
+    <string name="sincronizar">Synchronize</string>
 </resources>

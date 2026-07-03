@@ -38,4 +38,6 @@
     <string name="login_error">Erro ao entrar. Verifique os dados.</string>
     <string name="register_success">Conta criada com sucesso</string>
     <string name="register_error">Erro ao criar conta.</string>
+
+    <string name="sincronizar">Sincronizar</string>
 </resources>
