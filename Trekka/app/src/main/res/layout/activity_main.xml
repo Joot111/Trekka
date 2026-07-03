@@ -23,6 +23,15 @@
             android:contentDescription="@string/about_button_desc"
             app:tint="@color/white" />
 
+        <ImageButton
+            android:id="@+id/logoutButton"
+            style="@style/caixa_linguagem"
+            android:layout_toEndOf="@id/aboutButton"
+            android:layout_marginStart="8dp"
+            android:src="@android:drawable/ic_lock_power_off"
+            android:contentDescription="Logout"
+            app:tint="@color/white" />
+
         <TextView
             android:id="@+id/languageBox"
             style="@style/caixa_linguagem"

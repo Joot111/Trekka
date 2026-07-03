@@ -54,4 +54,9 @@ class TrailRepository(private val db: TrekkaDatabase) {
 
     // Remove todos os pontos de uma trilha
     fun getPoints(trailId: Long) = db.trailPointDao().getPointsForTrail(trailId)
+
+    // Insere um objeto Trail completo (usado para download da API)
+    suspend fun insertTrail(trail: Trail): Long {
+        return db.trailDao().insert(trail)
+    }
 }

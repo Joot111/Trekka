@@ -27,4 +27,18 @@
     <string name="libraries_list">Room, Google Play Services (Location &amp; Maps), Kotlin Coroutines, Secrets Gradle Plugin</string>
     <string name="about_button_desc">About the application</string>
     <string name="theme_button_desc">Toggle Light/Dark Mode</string>
+    <string name="login_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button">Login</string>
+    <string name="register_link">Don\'t have an account? Register here</string>
+    <string name="name_hint">Full Name</string>
+    <string name="register_button">Register</string>
+    <string name="login_link">Already have an account? Login here</string>
+    <string name="error_empty_fields">Fill all fields</string>
+    <string name="login_success">Login successful</string>
+    <string name="login_error">Error logging in. Check your data.</string>
+    <string name="register_success">Account created successfully</string>
+    <string name="register_error">Error creating account.</string>
+
+    <string name="sincronizar">Synchronize</string>
 </resources>
