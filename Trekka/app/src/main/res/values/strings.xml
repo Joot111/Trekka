@@ -15,4 +15,14 @@
     <string name="delete_trail_title">Apagar trilho</string>
     <string name="delete_trail_msg">Tem a certeza que deseja apagar este trilho?</string>
     <string name="delete">Apagar</string>
+
+    <string name="about_title">Sobre o Trekka</string>
+    <string name="developer_name">Nome: João Joaquim</string>
+    <string name="student_number">Número: 24729</string>
+    <string name="course_name">Curso: Mestrado de IoT</string>
+    <string name="uc_name">UC: Dispositivos e Aplicações Móveis Avançadas (DAMA)</string>
+    <string name="academic_year">Ano Letivo: 2025/2026</string>
+    <string name="libraries_title">Bibliotecas Utilizadas</string>
+    <string name="libraries_list">Room, Google Play Services (Location &amp; Maps), Kotlin Coroutines, Secrets Gradle Plugin</string>
+    <string name="about_button_desc">Sobre a aplicação</string>
 </resources>

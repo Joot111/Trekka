@@ -8,6 +8,18 @@
     android:background="@color/background"
     tools:context=".MainActivity">
 
+    <!-- Botão Sobre -->
+    <ImageButton
+        android:id="@+id/aboutButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="16dp"
+        android:background="@drawable/button_background"
+        android:src="@android:drawable/ic_menu_info_details"
+        android:contentDescription="@string/about_button_desc"
+        app:tint="@color/white" />
+
     <!-- Caixa de Idioma -->
     <TextView
         android:id="@+id/languageBox"

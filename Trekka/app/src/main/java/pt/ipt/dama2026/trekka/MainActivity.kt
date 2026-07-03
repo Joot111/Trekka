@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         val startButton = findViewById<Button>(R.id.startButton)
         val historyButton = findViewById<Button>(R.id.historyButton)
         val languageBox = findViewById<TextView>(R.id.languageBox)
+        val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
 
         // 2. SEGUNDO: Inicializar o ViewModel
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
@@ -99,6 +100,11 @@ class MainActivity : AppCompatActivity() {
             val newLocale = if (currentLocale == "pt") "en" else "pt"
             val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(newLocale)
             AppCompatDelegate.setApplicationLocales(appLocale)
+        }
+
+        // Clique para abrir o Sobre
+        aboutButton.setOnClickListener {
+            startActivity(Intent(this, AboutActivity::class.java))
         }
     }
 

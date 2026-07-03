@@ -47,6 +47,11 @@
             android:exported="false"
             android:label="Mapa do Trilho" />
 
+        <activity
+            android:name=".AboutActivity"
+            android:exported="false"
+            android:label="Sobre" />
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
