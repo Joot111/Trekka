@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
             if (isGranted) {
                 viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
                 startButton.text = getString(R.string.stop_button)
+                startButton.setBackgroundResource(R.drawable.button_stop_ripple)
             }
         }
 
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         // 5. Definir o texto inicial do botão se o serviço já estiver a correr
         if (isServiceRunning(TrackingService::class.java)) {
             startButton.text = getString(R.string.stop_button)
+            startButton.setBackgroundResource(R.drawable.button_stop_ripple)
         }
 
         // Clique do botão Iniciar/Parar
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             if (isServiceRunning(TrackingService::class.java)) {
                 stopService(Intent(this, TrackingService::class.java))
                 startButton.text = getString(R.string.start_button)
+                startButton.setBackgroundResource(R.drawable.button_ripple)
             } else {
                 val hasLocationPermission = ContextCompat.checkSelfPermission(
                     this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -76,6 +79,7 @@ class MainActivity : AppCompatActivity() {
                 if (hasLocationPermission) {
                     viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
                     startButton.text = getString(R.string.stop_button)
+                    startButton.setBackgroundResource(R.drawable.button_stop_ripple)
                 } else {
                     requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                 }
