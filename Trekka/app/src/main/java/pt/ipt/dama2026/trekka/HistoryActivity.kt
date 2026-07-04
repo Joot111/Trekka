@@ -165,8 +165,12 @@ class HistoryActivity : AppCompatActivity() {
 
                 // --- 2. DOWNLOAD: Recuperar trilhos da API que não estão locais ---
                 val apiTrails = RetrofitClient.instance.getUserTrails(userId)
+                
+                // Refresh da lista local após o upload para ter a certeza do que já existe
+                val updatedLocalTrails = repository.getTrailsByUser(userId).first()
+
                 for (apiTrail in apiTrails) {
-                    val exists = localTrails.any { it.createdAt == apiTrail.createdAt }
+                    val exists = updatedLocalTrails.any { it.createdAt == apiTrail.createdAt }
                     if (!exists) {
                         val newTrailId = repository.insertTrail(
                             Trail(
@@ -176,7 +180,7 @@ class HistoryActivity : AppCompatActivity() {
                                 durationSeconds = apiTrail.durationSeconds,
                                 createdAt = apiTrail.createdAt,
                                 isPublic = apiTrail.isPublic,
-                                userId = userId // GUARDAR O DONO LOCALMENTE
+                                userId = userId
                             )
                         )
                         for (p in apiTrail.points) {

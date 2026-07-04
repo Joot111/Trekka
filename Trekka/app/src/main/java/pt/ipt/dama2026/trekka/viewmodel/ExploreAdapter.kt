@@ -45,12 +45,19 @@ class ExploreAdapter(
             0.0
         }
 
+        val ratingText = if (trail.numRatings > 0) {
+            holder.itemView.context.getString(R.string.rating_format, trail.rating, trail.numRatings)
+        } else {
+            holder.itemView.context.getString(R.string.no_ratings)
+        }
+
         holder.metrics.text = String.format(
             Locale.getDefault(),
-            "%.2f km | %s | %.1f km/h",
+            "%.2f km | %s | %.1f km/h | %s",
             distanceKm,
             durationFormatted,
-            speedKmH
+            speedKmH,
+            ratingText
         )
 
         // No Explorar, não permitimos editar ou apagar trilhos dos outros

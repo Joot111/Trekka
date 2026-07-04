@@ -7,6 +7,7 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,14 @@ class ExploreActivity : AppCompatActivity() {
 
     private lateinit var adapter: ExploreAdapter
     private lateinit var progressBar: ProgressBar
+
+    // Lançador para detetar se o mapa enviou um voto com sucesso
+    private val mapLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Se houve um voto, recarrega a lista para atualizar a média de estrelas
+            loadPublicTrails()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +45,7 @@ class ExploreActivity : AppCompatActivity() {
             intent.putExtra("REMOTE_TRAIL", true)
             intent.putExtra("TRAIL_NAME", trailDto.name)
             intent.putExtra("API_TRAIL_ID", trailDto.id)
-            startActivity(intent)
+            mapLauncher.launch(intent) // Usar o novo launcher em vez de startActivity
         }
 
         recyclerView.adapter = adapter

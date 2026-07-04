@@ -12,6 +12,9 @@ data class TrailDTO(
     val createdAt: Long,
     val userId: String?,
     val isPublic: Boolean = true,
+    val rating: Float = 0f,
+    val numRatings: Int = 0,
+    val ratedBy: List<String> = emptyList(),
     val points: List<PointDTO>
 )
 

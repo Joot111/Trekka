@@ -2,6 +2,12 @@ package pt.ipt.dama2026.trekka.data.api
 
 import retrofit2.http.*
 
+// NOVO: Classe para enviar a avaliação sem usar tipos genéricos (Any)
+data class RateRequest(
+    val rating: Int,
+    val userId: String
+)
+
 interface TrekkaApiService {
 
     @POST("auth/register")
@@ -24,4 +30,7 @@ interface TrekkaApiService {
 
     @PUT("trails/{id}")
     suspend fun updateTrail(@Path("id") id: String, @Body trail: TrailDTO): TrailDTO
+
+    @POST("trails/{id}/rate")
+    suspend fun rateTrail(@Path("id") id: String, @Body body: RateRequest): TrailDTO
 }
