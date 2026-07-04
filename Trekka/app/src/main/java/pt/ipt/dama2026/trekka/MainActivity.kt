@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         // 1. PRIMEIRO: Encontrar os botões no layout
         val startButton = findViewById<Button>(R.id.startButton)
         val historyButton = findViewById<Button>(R.id.historyButton)
+        val exploreButton = findViewById<Button>(R.id.exploreButton)
         val languageBox = findViewById<TextView>(R.id.languageBox)
         val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
         val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
@@ -91,6 +92,11 @@ class MainActivity : AppCompatActivity() {
         // Clique do botão Histórico
         historyButton.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
+        }
+
+        // Clique do botão Explorar
+        exploreButton.setOnClickListener {
+            startActivity(Intent(this, ExploreActivity::class.java))
         }
 
         // Ajustar padding das barras do sistema

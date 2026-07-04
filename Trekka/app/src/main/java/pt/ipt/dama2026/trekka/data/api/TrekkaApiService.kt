@@ -13,6 +13,12 @@ interface TrekkaApiService {
     @GET("trails/user/{userId}")
     suspend fun getUserTrails(@Path("userId") userId: String): List<TrailDTO>
 
+    @GET("trails")
+    suspend fun getAllTrails(): List<TrailDTO>
+
+    @GET("trails/{id}")
+    suspend fun getTrailById(@Path("id") id: String): TrailDTO
+
     @POST("trails")
     suspend fun createTrail(@Body trail: TrailDTO): TrailDTO
 }

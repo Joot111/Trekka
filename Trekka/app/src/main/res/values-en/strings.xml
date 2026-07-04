@@ -41,4 +41,9 @@
     <string name="register_error">Error creating account.</string>
 
     <string name="sincronizar">Synchronize</string>
+
+    <string name="explore_title">Explore Trails</string>
+    <string name="explore_button">Explore</string>
+    <string name="loading_trails">Loading public trails…</string>
+    <string name="error_loading_explore">Error loading community trails.</string>
 </resources>
