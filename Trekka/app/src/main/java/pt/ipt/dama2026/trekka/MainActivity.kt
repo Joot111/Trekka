@@ -48,7 +48,8 @@ class MainActivity : AppCompatActivity() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
+                val userId = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserId()
+                viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}", userId)
                 startButton.text = getString(R.string.stop_button)
                 startButton.setBackgroundResource(R.drawable.button_stop_ripple)
             }
@@ -91,7 +92,8 @@ class MainActivity : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
 
                 if (hasLocationPermission) {
-                    viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
+                    val userId = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserId()
+                    viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}", userId)
                     startButton.text = getString(R.string.stop_button)
                     startButton.setBackgroundResource(R.drawable.button_stop_ripple)
                 } else {

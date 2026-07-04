@@ -16,5 +16,6 @@ data class Trail(
     val distanceMeters: Double = 0.0,
     val durationSeconds: Long = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val isPublic: Boolean = false
+    val isPublic: Boolean = false,
+    val userId: String? = null // NOVO: Relacionar trilho local com utilizador logado
 )

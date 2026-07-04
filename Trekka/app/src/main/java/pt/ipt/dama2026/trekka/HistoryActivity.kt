@@ -58,7 +58,7 @@ class HistoryActivity : AppCompatActivity() {
                 startActivity(intent)
             },
             onEditClick = { trail ->
-                showEditDialog(trail.id, trail.name)
+                showEditDialog(trail.id)
             },
             onDeleteClick = { trail ->
                 showDeleteConfirmation(trail.id)
@@ -68,8 +68,9 @@ class HistoryActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 3. Observar a lista de trilhos
-        viewModel.trails.observe(this) { listaDeTrilhos ->
+        // 3. Observar a lista de trilhos FILTRADA pelo utilizador logado
+        val currentUserId = SessionManager(this).fetchUserId() ?: ""
+        viewModel.getTrails(currentUserId).observe(this) { listaDeTrilhos ->
             adapter.updateData(listaDeTrilhos)
         }
 
@@ -87,11 +88,11 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun showEditDialog(id: Long, currentName: String) {
+    private fun showEditDialog(id: Long) {
         val repository = (application as TrekkaApplication).repository
         
         lifecycleScope.launch {
-            val trail = repository.trails.first().find { it.id == id } ?: return@launch
+            val trail = repository.getTrailsByUser(SessionManager(this@HistoryActivity).fetchUserId() ?: "").first().find { it.id == id } ?: return@launch
 
             val layout = LinearLayout(this@HistoryActivity)
             layout.orientation = LinearLayout.VERTICAL
@@ -135,20 +136,16 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun syncTrailsWithApi() {
-        android.util.Log.d("TREKKA_SYNC", "Botão clicado! Verificando sessão...")
         val sessionManager = SessionManager(this)
         val userId = sessionManager.fetchUserId() ?: return
         val repository = (application as TrekkaApplication).repository
-
-        android.util.Log.d("TREKKA_SYNC", "Iniciando sincronização para o UserID: $userId")
 
         lifecycleScope.launch {
             try {
                 Toast.makeText(this@HistoryActivity, "Sincronizando...", Toast.LENGTH_SHORT).show()
 
-                // --- 1. UPLOAD: Enviar trilhos locais para a API ---
-                val localTrails = repository.trails.first()
-                android.util.Log.d("TREKKA_SYNC", "Encontrados ${localTrails.size} trilhos locais para upload.")
+                // --- 1. UPLOAD: Enviar APENAS os trilhos do utilizador logado ---
+                val localTrails = repository.getTrailsByUser(userId).first()
                 for (trail in localTrails) {
                     val points = repository.getPoints(trail.id).first()
                     val trailDto = TrailDTO(
@@ -158,22 +155,18 @@ class HistoryActivity : AppCompatActivity() {
                         durationSeconds = trail.durationSeconds,
                         createdAt = trail.createdAt,
                         userId = userId,
+                        isPublic = trail.isPublic, // AGORA ENVIA A PRIVACIDADE REAL
                         points = points.map { p ->
                             PointDTO(p.latitude, p.longitude, p.timestamp, p.orderIndex)
                         }
                     )
                     RetrofitClient.instance.createTrail(trailDto)
-                    android.util.Log.d("TREKKA_SYNC", "Upload concluído para: ${trail.name}")
                 }
 
                 // --- 2. DOWNLOAD: Recuperar trilhos da API que não estão locais ---
                 val apiTrails = RetrofitClient.instance.getUserTrails(userId)
-                android.util.Log.d("TREKKA_SYNC", "Recebidos ${apiTrails.size} trilhos da API.")
-
                 for (apiTrail in apiTrails) {
                     val exists = localTrails.any { it.createdAt == apiTrail.createdAt }
-                    android.util.Log.d("TREKKA_SYNC", "Analisando trilho API: ${apiTrail.name} (Timestamp: ${apiTrail.createdAt}) - Existe localmente: $exists")
-                    
                     if (!exists) {
                         val newTrailId = repository.insertTrail(
                             Trail(
@@ -182,20 +175,19 @@ class HistoryActivity : AppCompatActivity() {
                                 distanceMeters = apiTrail.distanceMeters,
                                 durationSeconds = apiTrail.durationSeconds,
                                 createdAt = apiTrail.createdAt,
-                                isPublic = apiTrail.isPublic
+                                isPublic = apiTrail.isPublic,
+                                userId = userId // GUARDAR O DONO LOCALMENTE
                             )
                         )
                         for (p in apiTrail.points) {
                             repository.addPoint(newTrailId, p.latitude, p.longitude, p.orderIndex)
                         }
-                        android.util.Log.d("TREKKA_SYNC", "Trilho ${apiTrail.name} baixado e inserido com sucesso!")
                     }
                 }
 
                 Toast.makeText(this@HistoryActivity, "Sincronização concluída!", Toast.LENGTH_SHORT).show()
 
             } catch (e: Exception) {
-                android.util.Log.e("TREKKA_SYNC", "Erro na sincronização: ${e.message}", e)
                 Toast.makeText(this@HistoryActivity, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }

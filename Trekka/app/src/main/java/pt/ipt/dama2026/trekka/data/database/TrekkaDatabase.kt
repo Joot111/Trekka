@@ -18,7 +18,7 @@ import pt.ipt.dama2026.trekka.data.model.TrailPoint
  * @see TrekkaDatabase
  */
 
-@Database(entities = [Trail::class, TrailPoint::class], version = 2)
+@Database(entities = [Trail::class, TrailPoint::class], version = 3)
 abstract class TrekkaDatabase : RoomDatabase() {
 
     // Interfaces que definem os métodos de acesso aos dados
