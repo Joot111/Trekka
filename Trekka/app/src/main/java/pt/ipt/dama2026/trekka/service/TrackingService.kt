@@ -13,6 +13,7 @@ import android.os.IBinder
 import android.os.Looper
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
+import androidx.core.content.edit
 import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -74,7 +75,7 @@ class TrackingService : Service(), SensorEventListener {
         fused = LocationServices.getFusedLocationProviderClient(this)
 
         // Inicialização do Acelerómetro (2º Componente de Hardware exigido)
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         startTime = System.currentTimeMillis()
     }
@@ -84,8 +85,9 @@ class TrackingService : Service(), SensorEventListener {
         currentTrailId = intent?.getLongExtra("TRAIL_ID", -1) ?: -1
         
         // Mantém o ID ativo para recuperação caso a app seja fechada
-        getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE)
-            .edit().putLong("active_trail_id", currentTrailId).apply()
+        getSharedPreferences("trekka_prefs", MODE_PRIVATE).edit {
+            putLong("active_trail_id", currentTrailId)
+        }
 
         // Conformidade com Android 14 (U): Especificar FOREGROUND_SERVICE_TYPE_LOCATION
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -158,7 +160,7 @@ class TrackingService : Service(), SensorEventListener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun updateNotification() {
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(NOTIF_ID, buildNotification())
     }
 
@@ -167,7 +169,7 @@ class TrackingService : Service(), SensorEventListener {
      */
     private fun buildNotification(): Notification {
         val channelId = "trekka_tracking_channel"
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (nm.getNotificationChannel(channelId) == null) {
             nm.createNotificationChannel(NotificationChannel(channelId, "Tracking", NotificationManager.IMPORTANCE_LOW))
         }

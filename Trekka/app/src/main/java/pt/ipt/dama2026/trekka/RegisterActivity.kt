@@ -79,7 +79,7 @@ class RegisterActivity : AppCompatActivity() {
                     RetrofitClient.instance.register(User(name = name, email = email, password = pass))
                     Toast.makeText(this@RegisterActivity, R.string.register_success, Toast.LENGTH_SHORT).show()
                     finish() // Regresso ao Login após criação de conta
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     Toast.makeText(this@RegisterActivity, R.string.register_error, Toast.LENGTH_LONG).show()
                 } finally {
                     progressBar.visibility = View.GONE

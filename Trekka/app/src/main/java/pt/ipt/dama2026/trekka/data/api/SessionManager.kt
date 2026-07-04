@@ -2,6 +2,7 @@ package pt.ipt.dama2026.trekka.data.api
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 class SessionManager(context: Context) {
     private var prefs: SharedPreferences =
@@ -15,9 +16,7 @@ class SessionManager(context: Context) {
     }
 
     fun saveAuthToken(token: String) {
-        val editor = prefs.edit()
-        editor.putString(USER_TOKEN, token)
-        editor.apply()
+        prefs.edit { putString(USER_TOKEN, token) }
     }
 
     fun fetchAuthToken(): String? {
@@ -33,17 +32,15 @@ class SessionManager(context: Context) {
     }
 
     fun saveUser(user: User) {
-        val editor = prefs.edit()
-        editor.putString(USER_ID, user.id)
-        editor.putString(USER_NAME, user.name)
-        editor.putString(USER_EMAIL, user.email)
-        editor.apply()
+        prefs.edit {
+            putString(USER_ID, user.id)
+            putString(USER_NAME, user.name)
+            putString(USER_EMAIL, user.email)
+        }
     }
 
     fun logout() {
-        val editor = prefs.edit()
-        editor.clear()
-        editor.apply()
+        prefs.edit { clear() }
     }
 
     fun isLoggedIn(): Boolean {

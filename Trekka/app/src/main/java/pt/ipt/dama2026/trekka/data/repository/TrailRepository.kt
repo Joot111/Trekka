@@ -39,13 +39,6 @@ class TrailRepository(private val db: TrekkaDatabase) {
     }
 
     /**
-     * Atualiza os dados de um trilho completo (usado no download da API).
-     */
-    suspend fun updateTrail(trail: Trail) {
-        db.trailDao().update(trail)
-    }
-
-    /**
      * Elimina um trilho e os seus pontos associados (via CASCADE).
      */
     suspend fun deleteTrail(trailId: Long) {

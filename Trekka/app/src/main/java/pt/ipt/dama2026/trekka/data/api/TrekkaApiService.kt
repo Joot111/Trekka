@@ -47,12 +47,6 @@ interface TrekkaApiService {
     suspend fun createTrail(@Body trail: TrailDTO): TrailDTO
 
     /**
-     * Atualiza dados de um trilho existente (como nome ou privacidade).
-     */
-    @PUT("trails/{id}")
-    suspend fun updateTrail(@Path("id") id: String, @Body trail: TrailDTO): TrailDTO
-
-    /**
      * Envia uma avaliação (estrelas) para um trilho público.
      */
     @POST("trails/{id}/rate")

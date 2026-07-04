@@ -94,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this@LoginActivity, R.string.login_success, Toast.LENGTH_SHORT).show()
                     startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                     finish()
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     Toast.makeText(this@LoginActivity, R.string.login_error, Toast.LENGTH_LONG).show()
                 } finally {
                     progressBar.visibility = View.GONE

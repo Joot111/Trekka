@@ -8,16 +8,20 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import pt.ipt.dama2026.trekka.data.api.SessionManager
 import pt.ipt.dama2026.trekka.service.TrackingService
 import pt.ipt.dama2026.trekka.viewmodel.TrailViewModel
 import pt.ipt.dama2026.trekka.viewmodel.TrailViewModelFactory
@@ -39,13 +43,13 @@ class MainActivity : AppCompatActivity() {
         val historyButton = findViewById<Button>(R.id.historyButton)
         val exploreButton = findViewById<Button>(R.id.exploreButton)
         val languageBox = findViewById<TextView>(R.id.languageBox)
-        val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
-        val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
-        val logoutButton = findViewById<android.widget.ImageButton>(R.id.logoutButton)
+        val aboutButton = findViewById<ImageButton>(R.id.aboutButton)
+        val themeButton = findViewById<ImageButton>(R.id.themeButton)
+        val logoutButton = findViewById<ImageButton>(R.id.logoutButton)
         val txtWelcomeUser = findViewById<TextView>(R.id.txtWelcomeUser)
 
         // Mostrar nome do utilizador autenticado
-        val userName = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserName()
+        val userName = SessionManager(this).fetchUserName()
         if (userName != null) {
             txtWelcomeUser.text = getString(R.string.welcome_user, userName)
         } else {
@@ -61,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                val userId = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserId()
+                val userId = SessionManager(this).fetchUserId()
                 viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}", userId)
                 startButton.text = getString(R.string.stop_button)
                 startButton.setBackgroundResource(R.drawable.button_stop_ripple)
@@ -89,7 +93,7 @@ class MainActivity : AppCompatActivity() {
         startButton.setOnClickListener {
             if (isServiceRunning(TrackingService::class.java)) {
                 // Ao parar, recuperamos o ID do trilho ativo para definir a privacidade
-                val prefs = getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE)
+                val prefs = getSharedPreferences("trekka_prefs", MODE_PRIVATE)
                 val activeId = prefs.getLong("active_trail_id", -1)
                 
                 if (activeId != -1L) {
@@ -104,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                 ) == PackageManager.PERMISSION_GRANTED
 
                 if (hasLocationPermission) {
-                    val userId = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserId()
+                    val userId = SessionManager(this).fetchUserId()
                     viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}", userId)
                     startButton.text = getString(R.string.stop_button)
                     startButton.setBackgroundResource(R.drawable.button_stop_ripple)
@@ -146,7 +150,7 @@ class MainActivity : AppCompatActivity() {
 
         // Encerramento de Sessão
         logoutButton.setOnClickListener {
-            pt.ipt.dama2026.trekka.data.api.SessionManager(this).logout()
+            SessionManager(this).logout()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
@@ -181,7 +185,7 @@ class MainActivity : AppCompatActivity() {
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
         val viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(R.string.privacy_dialog_title)
             .setMessage(R.string.privacy_dialog_msg)
             .setPositiveButton(R.string.public_mode) { _, _ ->
@@ -204,6 +208,6 @@ class MainActivity : AppCompatActivity() {
         startButton.text = getString(R.string.start_button)
         startButton.setBackgroundResource(R.drawable.button_ripple)
         
-        getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE).edit().remove("active_trail_id").apply()
+        getSharedPreferences("trekka_prefs", MODE_PRIVATE).edit { remove("active_trail_id") }
     }
 }
