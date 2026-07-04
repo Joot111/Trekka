@@ -45,4 +45,9 @@ class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
     fun renameTrail(id: Long, newName: String) = viewModelScope.launch {
         repo.renameTrail(id, newName)
     }
+
+    // Atualiza a privacidade
+    fun updatePrivacy(id: Long, isPublic: Boolean) = viewModelScope.launch {
+        repo.updateTrailPrivacy(id, isPublic)
+    }
 }

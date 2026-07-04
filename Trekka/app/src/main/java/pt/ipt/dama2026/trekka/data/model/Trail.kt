@@ -15,5 +15,6 @@ data class Trail(
     val description: String? = null,
     val distanceMeters: Double = 0.0,
     val durationSeconds: Long = 0,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val isPublic: Boolean = false
 )

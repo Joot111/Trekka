@@ -46,4 +46,8 @@
     <string name="explore_button">Explorar</string>
     <string name="loading_trails">A carregar trilhos públicos…</string>
     <string name="error_loading_explore">Erro ao carregar trilhos da comunidade.</string>
+    <string name="privacy_dialog_title">Finalizar Trilho</string>
+    <string name="privacy_dialog_msg">Deseja tornar este trilho público para a comunidade?</string>
+    <string name="public_mode">Público</string>
+    <string name="private_mode">Privado</string>
 </resources>

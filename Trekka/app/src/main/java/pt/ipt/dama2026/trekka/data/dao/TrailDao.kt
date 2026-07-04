@@ -31,4 +31,7 @@ interface TrailDao {
 
     @Query("UPDATE trails SET distanceMeters = :distance, durationSeconds = :duration WHERE id = :trailId")
     suspend fun updateStats(trailId: Long, distance: Double, duration: Long)
+
+    @Query("UPDATE trails SET isPublic = :isPublic WHERE id = :trailId")
+    suspend fun updatePrivacy(trailId: Long, isPublic: Boolean)
 }

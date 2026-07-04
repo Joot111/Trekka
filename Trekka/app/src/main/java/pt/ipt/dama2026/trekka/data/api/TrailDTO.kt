@@ -11,6 +11,7 @@ data class TrailDTO(
     val durationSeconds: Long,
     val createdAt: Long,
     val userId: String?,
+    val isPublic: Boolean = true,
     val points: List<PointDTO>
 )
 

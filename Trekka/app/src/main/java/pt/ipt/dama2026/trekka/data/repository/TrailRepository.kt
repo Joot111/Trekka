@@ -52,6 +52,11 @@ class TrailRepository(private val db: TrekkaDatabase) {
         db.trailDao().updateStats(trailId, distance, duration)
     }
 
+    // Atualiza a privacidade
+    suspend fun updateTrailPrivacy(trailId: Long, isPublic: Boolean) {
+        db.trailDao().updatePrivacy(trailId, isPublic)
+    }
+
     // Remove todos os pontos de uma trilha
     fun getPoints(trailId: Long) = db.trailPointDao().getPointsForTrail(trailId)
 

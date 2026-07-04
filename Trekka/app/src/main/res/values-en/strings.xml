@@ -47,4 +47,8 @@
     <string name="explore_button">Explore</string>
     <string name="loading_trails">Loading public trails…</string>
     <string name="error_loading_explore">Error loading community trails.</string>
+    <string name="privacy_dialog_title">Finish Trail</string>
+    <string name="privacy_dialog_msg">Do you want to make this trail public for the community?</string>
+    <string name="public_mode">Public</string>
+    <string name="private_mode">Private</string>
 </resources>
