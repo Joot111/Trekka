@@ -21,4 +21,7 @@ interface TrekkaApiService {
 
     @POST("trails")
     suspend fun createTrail(@Body trail: TrailDTO): TrailDTO
+
+    @PUT("trails/{id}")
+    suspend fun updateTrail(@Path("id") id: String, @Body trail: TrailDTO): TrailDTO
 }
