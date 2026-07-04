@@ -10,24 +10,24 @@ import pt.ipt.dama2026.trekka.data.model.Trail
 import pt.ipt.dama2026.trekka.data.model.TrailPoint
 
 /**
- * Classe que representa a base de dados do aplicação
- * @see Trail
- * @see TrailPoint
- * @see TrailDao
- * @see TrailPointDao
- * @see TrekkaDatabase
+ * Ponto de acesso central para a base de dados Room local.
+ * Define as tabelas (entidades), a versão do esquema e as interfaces DAO.
+ * Implementa o padrão Singleton para garantir uma única instância de acesso aos dados.
  */
-
 @Database(entities = [Trail::class, TrailPoint::class], version = 3)
 abstract class TrekkaDatabase : RoomDatabase() {
 
-    // Interfaces que definem os métodos de acesso aos dados
+    // Interfaces para operações de dados
     abstract fun trailDao(): TrailDao
     abstract fun trailPointDao(): TrailPointDao
 
-    // Objeto que representa a base de dados
     companion object {
         @Volatile private var INSTANCE: TrekkaDatabase? = null
+
+        /**
+         * Retorna a instância única da base de dados.
+         * Implementa destruição de dados em migrações para simplificação durante o desenvolvimento.
+         */
         fun getInstance(context: Context): TrekkaDatabase =
             INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(context.applicationContext, TrekkaDatabase::class.java, "trekka.db")

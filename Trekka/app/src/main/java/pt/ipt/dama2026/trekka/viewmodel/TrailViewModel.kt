@@ -9,44 +9,58 @@ import kotlinx.coroutines.launch
 import pt.ipt.dama2026.trekka.data.repository.TrailRepository
 
 /**
- * Classe que representa o ViewModel da tela principal
+ * ViewModel que gere a lógica de negócio dos trilhos para as Atividades.
+ * Facilita a comunicação entre a UI e o Repositório, lidando com Coroutines.
  */
-
 class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
 
-    // Função para obter trilhos filtrados por utilizador
+    /**
+     * Obtém uma lista LiveData de trilhos filtrados por utilizador.
+     */
     fun getTrails(userId: String) = repo.getTrailsByUser(userId).asLiveData()
 
     private val _currentTrailId = MutableLiveData<Long?>()
     val currentTrailId: LiveData<Long?> = _currentTrailId
 
-    // Inicia uma nova trilha
+    /**
+     * Inicia a gravação de um novo trilho associado a um utilizador.
+     */
     fun startNewTrail(name: String, userId: String?) = viewModelScope.launch {
         val id = repo.createTrail(name, userId)
         _currentTrailId.value = id
     }
 
-    // Adiciona um novo ponto à trilha
+    /**
+     * Adiciona um ponto de localização à sessão de tracking ativa.
+     */
     fun addPoint(lat: Double, lon: Double, idx: Int) = viewModelScope.launch {
         _currentTrailId.value?.let { repo.addPoint(it, lat, lon, idx) }
     }
 
-    // Limpa o ID da trilha atual para evitar re-emissão de eventos (como ao rodar o ecrã)
+    /**
+     * Reseta o ID do trilho atual para evitar reinicializações indesejadas do serviço.
+     */
     fun resetCurrentTrailId() {
         _currentTrailId.value = null
     }
 
-    // Elimina um trilho
+    /**
+     * Elimina um trilho e os seus pontos do armazenamento local.
+     */
     fun deleteTrail(id: Long) = viewModelScope.launch {
         repo.deleteTrail(id)
     }
 
-    // Renomeia um trilho
+    /**
+     * Renomeia um trilho existente localmente.
+     */
     fun renameTrail(id: Long, newName: String) = viewModelScope.launch {
         repo.renameTrail(id, newName)
     }
 
-    // Atualiza a privacidade
+    /**
+     * Altera as definições de privacidade (Público/Privado) de um trilho.
+     */
     fun updatePrivacy(id: Long, isPublic: Boolean) = viewModelScope.launch {
         repo.updateTrailPrivacy(id, isPublic)
     }

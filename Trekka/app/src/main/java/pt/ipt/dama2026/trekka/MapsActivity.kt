@@ -23,6 +23,12 @@ import kotlinx.coroutines.withContext
 import pt.ipt.dama2026.trekka.data.api.RetrofitClient
 import pt.ipt.dama2026.trekka.data.api.SessionManager
 
+/**
+ * Atividade que exibe o percurso de um trilho num mapa do Google.
+ * Suporta a visualização de trilhos locais (lidos da base de dados Room) 
+ * e trilhos remotos (lidos da API REST).
+ * Inclui funcionalidade de avaliação para trilhos comunitários.
+ */
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
@@ -37,16 +43,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
+        // Recuperar parâmetros passados por Intent
         trailId = intent.getLongExtra("TRAIL_ID", -1)
         isRemote = intent.getBooleanExtra("REMOTE_TRAIL", false)
         apiTrailId = intent.getStringExtra("API_TRAIL_ID")
 
+        // Inicializar o fragmento do mapa
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         findViewById<ImageButton>(R.id.btnBackMap).setOnClickListener { finish() }
 
-        // Configurar UI de Rating
+        // Configuração da UI de Avaliação (visível apenas para trilhos da comunidade)
         val cardRating = findViewById<CardView>(R.id.cardRating)
         ratingBar = findViewById(R.id.ratingBar)
         txtRatingLabel = findViewById(R.id.txtRatingLabel)
@@ -63,36 +71,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Envia a avaliação do trilho para o servidor via API.
+     */
     private fun sendRating(id: String, rating: Float) {
         val userId = SessionManager(this).fetchUserId() ?: return
         
         lifecycleScope.launch {
             try {
-                // Usar a nova classe RateRequest para evitar erros de wildcard do Retrofit
                 val request = pt.ipt.dama2026.trekka.data.api.RateRequest(rating.toInt(), userId)
                 RetrofitClient.instance.rateTrail(id, request)
                 
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MapsActivity, R.string.rating_sent, Toast.LENGTH_SHORT).show()
                     
-                    // Bloquear após votar com sucesso
+                    // Bloqueia as estrelas após o voto para evitar duplicados na mesma sessão
                     ratingBar.setIsIndicator(true)
                     txtRatingLabel.setText(R.string.already_rated)
-                    setResult(RESULT_OK)
+                    setResult(RESULT_OK) // Notifica a ExploreActivity para atualizar a lista
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    // Mostrar o erro amigável agora que a causa técnica foi resolvida
                     Toast.makeText(this@MapsActivity, R.string.rating_error, Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
+    /**
+     * Callback invocado quando o mapa está pronto para ser utilizado.
+     */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         lifecycleScope.launch {
-            delay(500)
+            delay(500) // Pequeno atraso para estabilidade visual
             if (isRemote) {
                 drawRemoteTrail()
             } else {
@@ -101,6 +113,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Lê os pontos da base de dados Room local e desenha-os no mapa.
+     */
     private suspend fun drawLocalTrail() {
         val repository = (application as TrekkaApplication).repository
         try {
@@ -116,6 +131,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Carrega os dados do trilho via API e desenha o percurso remoto no mapa.
+     */
     private suspend fun drawRemoteTrail() {
         val userId = SessionManager(this).fetchUserId()
         apiTrailId?.let { id ->
@@ -125,10 +143,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
                 
                 withContext(Dispatchers.Main) {
-                    // Se o utilizador logado já votou neste trilho, bloqueamos as estrelas
+                    // Se o utilizador já avaliou este trilho anteriormente, bloqueia a edição
                     if (userId != null && trailDto.ratedBy.contains(userId)) {
                         ratingBar.rating = trailDto.rating
-                        ratingBar.setIsIndicator(true) // Modo apenas leitura
+                        ratingBar.setIsIndicator(true)
                         txtRatingLabel.setText(R.string.already_rated)
                     }
                 }
@@ -143,22 +161,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    /**
+     * Desenha a linha do percurso e coloca os marcadores de Início (Verde) e Fim (Vermelho).
+     */
     private fun renderPolylineAndMarkers(points: List<LatLng>) {
         if (points.isEmpty()) return
 
         val polylineOptions = PolylineOptions().color(Color.BLUE).width(10f).addAll(points)
         mMap.addPolyline(polylineOptions)
 
+        // Marcador de Início
         mMap.addMarker(MarkerOptions()
             .position(points.first())
             .title("Início")
             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))
 
+        // Marcador de Fim
         mMap.addMarker(MarkerOptions()
             .position(points.last())
             .title("Fim")
             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
 
+        // Ajusta a câmara do mapa para enquadrar todo o percurso
         val boundsBuilder = LatLngBounds.Builder()
         points.forEach { boundsBuilder.include(it) }
 
