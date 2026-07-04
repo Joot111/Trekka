@@ -74,6 +74,10 @@ class TrackingService : Service(), SensorEventListener {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         currentTrailId = intent?.getLongExtra("TRAIL_ID", -1) ?: -1
+        
+        // Guardar o ID nas SharedPreferences para a MainActivity conseguir ler ao parar
+        getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE)
+            .edit().putLong("active_trail_id", currentTrailId).apply()
 
         // Para Android 14+, precisamos de passar o tipo de serviço
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {

@@ -2,6 +2,7 @@ package pt.ipt.dama2026.trekka
 
 import android.Manifest
 import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -22,6 +23,8 @@ import pt.ipt.dama2026.trekka.viewmodel.TrailViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 
+    private var activeTrailId: Long = -1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -30,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         // 1. PRIMEIRO: Encontrar os botões no layout
         val startButton = findViewById<Button>(R.id.startButton)
         val historyButton = findViewById<Button>(R.id.historyButton)
+        val exploreButton = findViewById<Button>(R.id.exploreButton)
         val languageBox = findViewById<TextView>(R.id.languageBox)
         val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
         val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
@@ -44,7 +48,8 @@ class MainActivity : AppCompatActivity() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
             if (isGranted) {
-                viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
+                val userId = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserId()
+                viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}", userId)
                 startButton.text = getString(R.string.stop_button)
                 startButton.setBackgroundResource(R.drawable.button_stop_ripple)
             }
@@ -70,16 +75,25 @@ class MainActivity : AppCompatActivity() {
         // Clique do botão Iniciar/Parar
         startButton.setOnClickListener {
             if (isServiceRunning(TrackingService::class.java)) {
-                stopService(Intent(this, TrackingService::class.java))
-                startButton.text = getString(R.string.start_button)
-                startButton.setBackgroundResource(R.drawable.button_ripple)
+                val prefs = getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE)
+                val activeId = prefs.getLong("active_trail_id", -1)
+                
+                if (activeId != -1L) {
+                    showPrivacyDialog(activeId, startButton)
+                } else {
+                    // Fallback se não encontrarmos o ID
+                    stopService(Intent(this, TrackingService::class.java))
+                    startButton.text = getString(R.string.start_button)
+                    startButton.setBackgroundResource(R.drawable.button_ripple)
+                }
             } else {
                 val hasLocationPermission = ContextCompat.checkSelfPermission(
                     this, Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
 
                 if (hasLocationPermission) {
-                    viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}")
+                    val userId = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserId()
+                    viewModel.startNewTrail("Trilho ${System.currentTimeMillis()}", userId)
                     startButton.text = getString(R.string.stop_button)
                     startButton.setBackgroundResource(R.drawable.button_stop_ripple)
                 } else {
@@ -91,6 +105,11 @@ class MainActivity : AppCompatActivity() {
         // Clique do botão Histórico
         historyButton.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
+        }
+
+        // Clique do botão Explorar
+        exploreButton.setOnClickListener {
+            startActivity(Intent(this, ExploreActivity::class.java))
         }
 
         // Ajustar padding das barras do sistema
@@ -139,5 +158,33 @@ class MainActivity : AppCompatActivity() {
             if (serviceClass.name == service.service.className) return true
         }
         return false
+    }
+
+    private fun showPrivacyDialog(trailId: Long, startButton: Button) {
+        val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
+        val viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.privacy_dialog_title)
+            .setMessage(R.string.privacy_dialog_msg)
+            .setPositiveButton(R.string.public_mode) { _, _ ->
+                viewModel.updatePrivacy(trailId, true)
+                finalizeTrail(startButton)
+            }
+            .setNegativeButton(R.string.private_mode) { _, _ ->
+                viewModel.updatePrivacy(trailId, false)
+                finalizeTrail(startButton)
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun finalizeTrail(startButton: Button) {
+        stopService(Intent(this, TrackingService::class.java))
+        startButton.text = getString(R.string.start_button)
+        startButton.setBackgroundResource(R.drawable.button_ripple)
+        
+        // Limpar o ID da memória
+        getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE).edit().remove("active_trail_id").apply()
     }
 }

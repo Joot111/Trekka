@@ -14,15 +14,15 @@ import pt.ipt.dama2026.trekka.data.repository.TrailRepository
 
 class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
 
-    // Lista de trilhas
-    val trails = repo.trails.asLiveData()
+    // Função para obter trilhos filtrados por utilizador
+    fun getTrails(userId: String) = repo.getTrailsByUser(userId).asLiveData()
 
     private val _currentTrailId = MutableLiveData<Long?>()
     val currentTrailId: LiveData<Long?> = _currentTrailId
 
     // Inicia uma nova trilha
-    fun startNewTrail(name: String) = viewModelScope.launch {
-        val id = repo.createTrail(name)
+    fun startNewTrail(name: String, userId: String?) = viewModelScope.launch {
+        val id = repo.createTrail(name, userId)
         _currentTrailId.value = id
     }
 
@@ -44,5 +44,10 @@ class TrailViewModel (private val repo: TrailRepository) : ViewModel() {
     // Renomeia um trilho
     fun renameTrail(id: Long, newName: String) = viewModelScope.launch {
         repo.renameTrail(id, newName)
+    }
+
+    // Atualiza a privacidade
+    fun updatePrivacy(id: Long, isPublic: Boolean) = viewModelScope.launch {
+        repo.updateTrailPrivacy(id, isPublic)
     }
 }

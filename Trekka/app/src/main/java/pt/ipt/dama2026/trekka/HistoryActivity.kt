@@ -2,8 +2,10 @@ package pt.ipt.dama2026.trekka
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -56,7 +58,7 @@ class HistoryActivity : AppCompatActivity() {
                 startActivity(intent)
             },
             onEditClick = { trail ->
-                showEditDialog(trail.id, trail.name)
+                showEditDialog(trail.id)
             },
             onDeleteClick = { trail ->
                 showDeleteConfirmation(trail.id)
@@ -66,8 +68,9 @@ class HistoryActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 3. Observar a lista de trilhos
-        viewModel.trails.observe(this) { listaDeTrilhos ->
+        // 3. Observar a lista de trilhos FILTRADA pelo utilizador logado
+        val currentUserId = SessionManager(this).fetchUserId() ?: ""
+        viewModel.getTrails(currentUserId).observe(this) { listaDeTrilhos ->
             adapter.updateData(listaDeTrilhos)
         }
 
@@ -85,20 +88,40 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
-    private fun showEditDialog(id: Long, currentName: String) {
-        val input = EditText(this)
-        input.setText(currentName)
-        AlertDialog.Builder(this)
-            .setTitle(R.string.edit_trail_title)
-            .setView(input)
-            .setPositiveButton(R.string.save) { _, _ ->
-                val newName = input.text.toString()
-                if (newName.isNotBlank()) {
-                    viewModel.renameTrail(id, newName)
+    private fun showEditDialog(id: Long) {
+        val repository = (application as TrekkaApplication).repository
+        
+        lifecycleScope.launch {
+            val trail = repository.getTrailsByUser(SessionManager(this@HistoryActivity).fetchUserId() ?: "").first().find { it.id == id } ?: return@launch
+
+            val layout = LinearLayout(this@HistoryActivity)
+            layout.orientation = LinearLayout.VERTICAL
+            layout.setPadding(50, 40, 50, 10)
+
+            val inputName = EditText(this@HistoryActivity)
+            inputName.setText(trail.name)
+            inputName.hint = "Nome do trilho"
+            layout.addView(inputName)
+
+            val checkPublic = CheckBox(this@HistoryActivity)
+            checkPublic.text = getString(R.string.public_mode)
+            checkPublic.isChecked = trail.isPublic
+            checkPublic.setPadding(0, 20, 0, 20)
+            layout.addView(checkPublic)
+
+            AlertDialog.Builder(this@HistoryActivity)
+                .setTitle(R.string.edit_trail_title)
+                .setView(layout)
+                .setPositiveButton(R.string.save) { _, _ ->
+                    val newName = inputName.text.toString()
+                    if (newName.isNotBlank()) {
+                        viewModel.renameTrail(id, newName)
+                        viewModel.updatePrivacy(id, checkPublic.isChecked)
+                    }
                 }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
     }
 
     private fun showDeleteConfirmation(id: Long) {
@@ -121,8 +144,8 @@ class HistoryActivity : AppCompatActivity() {
             try {
                 Toast.makeText(this@HistoryActivity, "Sincronizando...", Toast.LENGTH_SHORT).show()
 
-                // --- 1. UPLOAD: Enviar trilhos locais para a API ---
-                val localTrails = repository.trails.first()
+                // --- 1. UPLOAD: Enviar APENAS os trilhos do utilizador logado ---
+                val localTrails = repository.getTrailsByUser(userId).first()
                 for (trail in localTrails) {
                     val points = repository.getPoints(trail.id).first()
                     val trailDto = TrailDTO(
@@ -132,6 +155,7 @@ class HistoryActivity : AppCompatActivity() {
                         durationSeconds = trail.durationSeconds,
                         createdAt = trail.createdAt,
                         userId = userId,
+                        isPublic = trail.isPublic, // AGORA ENVIA A PRIVACIDADE REAL
                         points = points.map { p ->
                             PointDTO(p.latitude, p.longitude, p.timestamp, p.orderIndex)
                         }
@@ -141,21 +165,24 @@ class HistoryActivity : AppCompatActivity() {
 
                 // --- 2. DOWNLOAD: Recuperar trilhos da API que não estão locais ---
                 val apiTrails = RetrofitClient.instance.getUserTrails(userId)
+                
+                // Refresh da lista local após o upload para ter a certeza do que já existe
+                val updatedLocalTrails = repository.getTrailsByUser(userId).first()
+
                 for (apiTrail in apiTrails) {
-                    // Verificar se o trilho já existe localmente (pelo createdAt que é o nosso timestamp único)
-                    val exists = localTrails.any { it.createdAt == apiTrail.createdAt }
+                    val exists = updatedLocalTrails.any { it.createdAt == apiTrail.createdAt }
                     if (!exists) {
-                        // Inserir trilho
                         val newTrailId = repository.insertTrail(
                             Trail(
                                 name = apiTrail.name,
                                 description = apiTrail.description,
                                 distanceMeters = apiTrail.distanceMeters,
                                 durationSeconds = apiTrail.durationSeconds,
-                                createdAt = apiTrail.createdAt
+                                createdAt = apiTrail.createdAt,
+                                isPublic = apiTrail.isPublic,
+                                userId = userId
                             )
                         )
-                        // Inserir os pontos
                         for (p in apiTrail.points) {
                             repository.addPoint(newTrailId, p.latitude, p.longitude, p.orderIndex)
                         }

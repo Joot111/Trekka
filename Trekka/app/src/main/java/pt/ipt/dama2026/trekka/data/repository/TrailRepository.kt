@@ -11,11 +11,12 @@ import pt.ipt.dama2026.trekka.data.model.TrailPoint
  */
 
 class TrailRepository(private val db: TrekkaDatabase) {
-    val trails = db.trailDao().getAll()
+    
+    fun getTrailsByUser(userId: String) = db.trailDao().getAllByUser(userId)
 
     // Cria uma nova trilha e retorna o seu ID
-    suspend fun createTrail(name: String): Long {
-        val id = db.trailDao().insert(Trail(name = name))
+    suspend fun createTrail(name: String, userId: String?): Long {
+        val id = db.trailDao().insert(Trail(name = name, userId = userId))
         return id
     }
 
@@ -50,6 +51,11 @@ class TrailRepository(private val db: TrekkaDatabase) {
     // Atualiza as estatísticas finais
     suspend fun updateTrailStats(trailId: Long, distance: Double, duration: Long) {
         db.trailDao().updateStats(trailId, distance, duration)
+    }
+
+    // Atualiza a privacidade
+    suspend fun updateTrailPrivacy(trailId: Long, isPublic: Boolean) {
+        db.trailDao().updatePrivacy(trailId, isPublic)
     }
 
     // Remove todos os pontos de uma trilha

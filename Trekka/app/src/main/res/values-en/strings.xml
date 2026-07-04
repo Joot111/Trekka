@@ -39,6 +39,23 @@
     <string name="login_error">Error logging in. Check your data.</string>
     <string name="register_success">Account created successfully</string>
     <string name="register_error">Error creating account.</string>
+    <string name="logout">Logout</string>
 
     <string name="sincronizar">Synchronize</string>
+
+    <string name="explore_title">Explore Trails</string>
+    <string name="explore_button">Explore</string>
+    <string name="loading_trails">Loading public trails…</string>
+    <string name="error_loading_explore">Error loading community trails.</string>
+
+    <string name="rate_trail">Rate Trail</string>
+    <string name="already_rated">Already rated this trail</string>
+    <string name="rating_sent">Rating sent!</string>
+    <string name="rating_error">Error: Already rated this trail or network error</string>
+    <string name="rating_format"> ⭐ %.1f (%d)</string>
+    <string name="no_ratings"> ⭐ no ratings</string>
+    <string name="privacy_dialog_title">Finish Trail</string>
+    <string name="privacy_dialog_msg">Do you want to make this trail public for the community?</string>
+    <string name="public_mode">Public</string>
+    <string name="private_mode">Private</string>
 </resources>

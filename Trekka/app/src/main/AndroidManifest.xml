@@ -51,6 +51,11 @@
             android:label="Histórico de Trilhos"/>
 
         <activity
+            android:name=".ExploreActivity"
+            android:exported="false"
+            android:label="Explorar" />
+
+        <activity
             android:name=".MapsActivity"
             android:exported="false"
             android:label="Mapa do Trilho" />

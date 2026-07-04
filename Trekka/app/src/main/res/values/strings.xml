@@ -38,6 +38,23 @@
     <string name="login_error">Erro ao entrar. Verifique os dados.</string>
     <string name="register_success">Conta criada com sucesso</string>
     <string name="register_error">Erro ao criar conta.</string>
+    <string name="logout">Sair</string>
 
     <string name="sincronizar">Sincronizar</string>
+
+    <string name="explore_title">Explorar Trilhos</string>
+    <string name="explore_button">Explorar</string>
+    <string name="loading_trails">A carregar trilhos públicos…</string>
+    <string name="error_loading_explore">Erro ao carregar trilhos da comunidade.</string>
+
+    <string name="rate_trail">Avaliar Trilho</string>
+    <string name="already_rated">Já avaliou este trilho</string>
+    <string name="rating_sent">Avaliação enviada!</string>
+    <string name="rating_error">Erro: Já avaliou este trilho ou erro de rede</string>
+    <string name="rating_format"> ⭐ %.1f (%d)</string>
+    <string name="no_ratings"> ⭐ sem avaliações</string>
+    <string name="privacy_dialog_title">Finalizar Trilho</string>
+    <string name="privacy_dialog_msg">Deseja tornar este trilho público para a comunidade?</string>
+    <string name="public_mode">Público</string>
+    <string name="private_mode">Privado</string>
 </resources>

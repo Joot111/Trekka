@@ -18,7 +18,7 @@ import pt.ipt.dama2026.trekka.data.model.TrailPoint
  * @see TrekkaDatabase
  */
 
-@Database(entities = [Trail::class, TrailPoint::class], version = 1)
+@Database(entities = [Trail::class, TrailPoint::class], version = 3)
 abstract class TrekkaDatabase : RoomDatabase() {
 
     // Interfaces que definem os métodos de acesso aos dados
@@ -30,7 +30,10 @@ abstract class TrekkaDatabase : RoomDatabase() {
         @Volatile private var INSTANCE: TrekkaDatabase? = null
         fun getInstance(context: Context): TrekkaDatabase =
             INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(context.applicationContext, TrekkaDatabase::class.java, "trekka.db").build().also { INSTANCE = it }
+                Room.databaseBuilder(context.applicationContext, TrekkaDatabase::class.java, "trekka.db")
+                    .fallbackToDestructiveMigration()
+                    .build()
+                    .also { INSTANCE = it }
             }
     }
 }

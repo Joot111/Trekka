@@ -17,7 +17,7 @@ import pt.ipt.dama2026.trekka.data.model.Trail
 @Dao
 interface TrailDao {
     @Insert suspend fun insert(trail: Trail): Long
-    @Query("SELECT * FROM trails ORDER BY createdAt DESC") fun getAll(): Flow<List<Trail>>
+    @Query("SELECT * FROM trails WHERE userId = :userId ORDER BY createdAt DESC") fun getAllByUser(userId: String): Flow<List<Trail>>
     @Query("SELECT * FROM trails WHERE id = :id") fun getById(id: Long): Flow<Trail?>
     @Delete suspend fun delete(trail: Trail)
 
@@ -31,4 +31,7 @@ interface TrailDao {
 
     @Query("UPDATE trails SET distanceMeters = :distance, durationSeconds = :duration WHERE id = :trailId")
     suspend fun updateStats(trailId: Long, distance: Double, duration: Long)
+
+    @Query("UPDATE trails SET isPublic = :isPublic WHERE id = :trailId")
+    suspend fun updatePrivacy(trailId: Long, isPublic: Boolean)
 }
