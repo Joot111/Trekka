@@ -12,6 +12,10 @@ import pt.ipt.dama2026.trekka.data.api.TrailDTO
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Adaptador para a listagem de trilhos públicos (Exploração Comunitária).
+ * Exibe a média de avaliações e número de votos de cada percurso.
+ */
 class ExploreAdapter(
     private var trails: List<TrailDTO>,
     private val onItemClick: (TrailDTO) -> Unit
@@ -45,6 +49,14 @@ class ExploreAdapter(
             0.0
         }
 
+        // Lógica de "IA" para classificação de dificuldade
+        val difficulty = when {
+            distanceKm < 1.0 -> holder.itemView.context.getString(R.string.difficulty_easy)
+            distanceKm < 3.0 -> holder.itemView.context.getString(R.string.difficulty_moderate)
+            else -> holder.itemView.context.getString(R.string.difficulty_hard)
+        }
+
+        // Exibição do Rating (Estrelas e Qtd Votos)
         val ratingText = if (trail.numRatings > 0) {
             holder.itemView.context.getString(R.string.rating_format, trail.rating, trail.numRatings)
         } else {
@@ -53,14 +65,15 @@ class ExploreAdapter(
 
         holder.metrics.text = String.format(
             Locale.getDefault(),
-            "%.2f km | %s | %.1f km/h | %s",
+            "%.2f km | %s | %.1f km/h | %s | %s",
             distanceKm,
             durationFormatted,
             speedKmH,
+            difficulty,
             ratingText
         )
 
-        // No Explorar, não permitimos editar ou apagar trilhos dos outros
+        // No ecrã Explorar, os botões de gestão local são escondidos
         holder.btnEdit.visibility = View.GONE
         holder.btnDelete.visibility = View.GONE
 

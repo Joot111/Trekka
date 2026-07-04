@@ -36,6 +36,8 @@
     <string name="error_empty_fields">Preencha todos os campos</string>
     <string name="login_success">Login efetuado com sucesso</string>
     <string name="login_error">Erro ao entrar. Verifique os dados.</string>
+    <string name="invalid_email">Email inválido</string>
+    <string name="invalid_password">A password deve ter pelo menos 6 caracteres</string>
     <string name="register_success">Conta criada com sucesso</string>
     <string name="register_error">Erro ao criar conta.</string>
     <string name="logout">Sair</string>
@@ -57,4 +59,10 @@
     <string name="privacy_dialog_msg">Deseja tornar este trilho público para a comunidade?</string>
     <string name="public_mode">Público</string>
     <string name="private_mode">Privado</string>
+    <string name="total_distance">Distância Total</string>
+    <string name="total_trails">Total de Trilhos</string>
+    <string name="difficulty_easy">Fácil</string>
+    <string name="difficulty_moderate">Moderado</string>
+    <string name="difficulty_hard">Difícil</string>
+    <string name="welcome_user">Olá, %s!</string>
 </resources>

@@ -7,6 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
+/**
+ * Atividade informativa sobre a aplicação.
+ * Exibe dados do desenvolvedor, bibliotecas utilizadas e requisitos académicos (Obrigatório).
+ */
 class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,6 +22,7 @@ class AboutActivity : AppCompatActivity() {
             finish()
         }
 
+        // Ajuste de insets para garantir visibilidade do botão voltar em ecrãs Edge-to-Edge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.btnBackAbout)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

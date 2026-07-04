@@ -16,15 +16,18 @@ import kotlinx.coroutines.launch
 import pt.ipt.dama2026.trekka.data.api.RetrofitClient
 import pt.ipt.dama2026.trekka.viewmodel.ExploreAdapter
 
+/**
+ * Atividade para descoberta de trilhos públicos partilhados pela comunidade.
+ * Carrega dados em tempo real da API REST e gere a atualização da lista após avaliações.
+ */
 class ExploreActivity : AppCompatActivity() {
 
     private lateinit var adapter: ExploreAdapter
     private lateinit var progressBar: ProgressBar
 
-    // Lançador para detetar se o mapa enviou um voto com sucesso
+    // Monitoriza o regresso do mapa para atualizar os Ratings na lista se necessário
     private val mapLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            // Se houve um voto, recarrega a lista para atualizar a média de estrelas
             loadPublicTrails()
         }
     }
@@ -40,20 +43,25 @@ class ExploreActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener { finish() }
 
+        // Configuração do Adaptador de Exploração (reutiliza layout de itens mas bloqueia edição)
         adapter = ExploreAdapter(emptyList()) { trailDto ->
             val intent = Intent(this, MapsActivity::class.java)
             intent.putExtra("REMOTE_TRAIL", true)
             intent.putExtra("TRAIL_NAME", trailDto.name)
             intent.putExtra("API_TRAIL_ID", trailDto.id)
-            mapLauncher.launch(intent) // Usar o novo launcher em vez de startActivity
+            mapLauncher.launch(intent)
         }
 
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        // Carga inicial de dados
         loadPublicTrails()
     }
 
+    /**
+     * Faz o pedido à API para obter a lista de todos os trilhos onde isPublic = true.
+     */
     private fun loadPublicTrails() {
         progressBar.visibility = View.VISIBLE
         lifecycleScope.launch {

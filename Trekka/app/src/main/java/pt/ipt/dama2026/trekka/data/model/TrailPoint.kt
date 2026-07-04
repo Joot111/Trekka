@@ -6,8 +6,9 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * Entidade que representa a trilha na Base de Dados
- * @see Trail
+ * Entidade Room que representa as coordenadas geográficas de um trilho.
+ * Cada ponto está associado a um trilho (Trail) através de uma chave estrangeira 
+ * com eliminação em cascata (CASCADE), garantindo a integridade dos dados.
  */
 @Entity(
     tableName = "trail_points",
@@ -19,11 +20,6 @@ import androidx.room.PrimaryKey
         onDelete = ForeignKey.CASCADE
     )]
 )
-
-/**
- * Entidade que representa um ponto da trilha na Base de Dados
- * @see TrailPoint
- */
 data class TrailPoint(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val trailId: Long,

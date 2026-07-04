@@ -10,6 +10,10 @@ import pt.ipt.dama2026.trekka.data.model.Trail
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Adaptador para a listagem de trilhos no Histórico Local.
+ * Gere a visualização de métricas (distância, tempo, velocidade) e a lógica de dificuldade inteligente.
+ */
 class TrailAdapter(
     private var trails: List<Trail>,
     private val onItemClick: (Trail) -> Unit,
@@ -45,12 +49,20 @@ class TrailAdapter(
             0.0
         }
 
+        // Lógica de "IA" para classificação de dificuldade baseada na distância
+        val difficulty = when {
+            distanceKm < 1.0 -> holder.itemView.context.getString(R.string.difficulty_easy)
+            distanceKm < 3.0 -> holder.itemView.context.getString(R.string.difficulty_moderate)
+            else -> holder.itemView.context.getString(R.string.difficulty_hard)
+        }
+
         holder.metrics.text = String.format(
             Locale.getDefault(),
-            "%.2f km | %s | %.1f km/h",
+            "%.2f km | %s | %.1f km/h | %s",
             distanceKm,
             durationFormatted,
-            speedKmH
+            speedKmH,
+            difficulty
         )
 
         holder.itemView.setOnClickListener { onItemClick(trail) }
@@ -60,6 +72,9 @@ class TrailAdapter(
 
     override fun getItemCount() = trails.size
 
+    /**
+     * Atualiza a lista de trilhos de forma eficiente usando DiffUtil.
+     */
     fun updateData(newTrails: List<Trail>) {
         val diffCallback = TrailDiffCallback(trails, newTrails)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
@@ -68,6 +83,9 @@ class TrailAdapter(
         diffResult.dispatchUpdatesTo(this)
     }
 
+    /**
+     * Converte segundos num formato legível HH:mm:ss ou mm:ss.
+     */
     private fun formatDuration(seconds: Long): String {
         val h = seconds / 3600
         val m = (seconds % 3600) / 60
