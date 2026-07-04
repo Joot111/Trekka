@@ -182,7 +182,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .title("Fim")
             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)))
 
-        // Ajusta a câmara do mapa para enquadrar todo o percurso
+        // Ajusta a câmara do mapa para enquadrar o percurso
         val boundsBuilder = LatLngBounds.Builder()
         points.forEach { boundsBuilder.include(it) }
 
