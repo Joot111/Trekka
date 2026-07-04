@@ -66,6 +66,17 @@
             style="@style/subtitulo_app"
             android:text="@string/subtitle_app" />
 
+        <TextView
+            android:id="@+id/txtWelcomeUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:textColor="@color/green_primary"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            tools:text="Olá, João Joaquim!" />
+
         <Button
             android:id="@+id/startButton"
             style="@style/botao_principal"

@@ -45,6 +45,13 @@ class ExploreAdapter(
             0.0
         }
 
+        // Lógica de "IA" para classificação de dificuldade
+        val difficulty = when {
+            distanceKm < 1.0 -> holder.itemView.context.getString(R.string.difficulty_easy)
+            distanceKm < 3.0 -> holder.itemView.context.getString(R.string.difficulty_moderate)
+            else -> holder.itemView.context.getString(R.string.difficulty_hard)
+        }
+
         val ratingText = if (trail.numRatings > 0) {
             holder.itemView.context.getString(R.string.rating_format, trail.rating, trail.numRatings)
         } else {
@@ -53,10 +60,11 @@ class ExploreAdapter(
 
         holder.metrics.text = String.format(
             Locale.getDefault(),
-            "%.2f km | %s | %.1f km/h | %s",
+            "%.2f km | %s | %.1f km/h | %s | %s",
             distanceKm,
             durationFormatted,
             speedKmH,
+            difficulty,
             ratingText
         )
 

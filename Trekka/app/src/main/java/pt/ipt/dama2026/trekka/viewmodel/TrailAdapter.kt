@@ -45,12 +45,20 @@ class TrailAdapter(
             0.0
         }
 
+        // Lógica de "IA" para classificação de dificuldade
+        val difficulty = when {
+            distanceKm < 1.0 -> holder.itemView.context.getString(R.string.difficulty_easy)
+            distanceKm < 3.0 -> holder.itemView.context.getString(R.string.difficulty_moderate)
+            else -> holder.itemView.context.getString(R.string.difficulty_hard)
+        }
+
         holder.metrics.text = String.format(
             Locale.getDefault(),
-            "%.2f km | %s | %.1f km/h",
+            "%.2f km | %s | %.1f km/h | %s",
             distanceKm,
             durationFormatted,
-            speedKmH
+            speedKmH,
+            difficulty
         )
 
         holder.itemView.setOnClickListener { onItemClick(trail) }

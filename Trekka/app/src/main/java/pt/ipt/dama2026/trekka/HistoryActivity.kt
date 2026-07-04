@@ -6,6 +6,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -27,6 +28,10 @@ import pt.ipt.dama2026.trekka.viewmodel.TrailAdapter
 import pt.ipt.dama2026.trekka.viewmodel.TrailViewModel
 import pt.ipt.dama2026.trekka.viewmodel.TrailViewModelFactory
 
+/**
+ * Atividade que exibe o histórico de trilhos gravados localmente pelo utilizador logado.
+ * Permite a edição (nome/privacidade), eliminação, visualização no mapa e sincronização cloud.
+ */
 class HistoryActivity : AppCompatActivity() {
 
     private lateinit var viewModel: TrailViewModel
@@ -38,18 +43,15 @@ class HistoryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_history)
 
         val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        btnBack.setOnClickListener {
-            finish()
-        }
+        btnBack.setOnClickListener { finish() }
 
-        // 1. Inicializar o ViewModel primeiro
+        // Inicialização do Repositório e ViewModel
         val repository = (application as TrekkaApplication).repository
         val factory = TrailViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
 
-        // 2. Configurar o RecyclerView com o Adapter correto
+        // Configuração do RecyclerView com cliques para mapa, edição e eliminação
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewTrails)
-
         adapter = TrailAdapter(
             trails = emptyList(),
             onItemClick = { trail ->
@@ -57,30 +59,30 @@ class HistoryActivity : AppCompatActivity() {
                 intent.putExtra("TRAIL_ID", trail.id)
                 startActivity(intent)
             },
-            onEditClick = { trail ->
-                showEditDialog(trail.id)
-            },
-            onDeleteClick = { trail ->
-                showDeleteConfirmation(trail.id)
-            }
+            onEditClick = { trail -> showEditDialog(trail.id) },
+            onDeleteClick = { trail -> showDeleteConfirmation(trail.id) }
         )
-
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // 3. Observar a lista de trilhos FILTRADA pelo utilizador logado
+        // Observa os trilhos filtrados pelo ID do utilizador logado
         val currentUserId = SessionManager(this).fetchUserId() ?: ""
+        val txtTotalDistance = findViewById<TextView>(R.id.txtTotalDistance)
+        val txtTotalTrails = findViewById<TextView>(R.id.txtTotalTrails)
+
         viewModel.getTrails(currentUserId).observe(this) { listaDeTrilhos ->
             adapter.updateData(listaDeTrilhos)
+            
+            // Cálculo e exibição das Estatísticas Globais no topo
+            val totalDistanceKm = listaDeTrilhos.sumOf { it.distanceMeters } / 1000.0
+            txtTotalDistance.text = String.format(java.util.Locale.getDefault(), "%.2f km", totalDistanceKm)
+            txtTotalTrails.text = listaDeTrilhos.size.toString()
         }
 
-        // 4. Lógica de Sincronização (Bidirecional)
+        // Configuração do botão de Sincronização Cloud (Backup/Restore)
         val btnSync = findViewById<ImageButton>(R.id.btnSync)
-        btnSync.setOnClickListener {
-            syncTrailsWithApi()
-        }
+        btnSync.setOnClickListener { syncTrailsWithApi() }
 
-        // Ajustar padding para as system bars
         ViewCompat.setOnApplyWindowInsetsListener(recyclerView) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(0, 0, 0, systemBars.bottom)
@@ -88,25 +90,31 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Exibe um diálogo para editar o nome do trilho e alternar o estado de privacidade (Público/Privado).
+     */
     private fun showEditDialog(id: Long) {
         val repository = (application as TrekkaApplication).repository
-        
         lifecycleScope.launch {
-            val trail = repository.getTrailsByUser(SessionManager(this@HistoryActivity).fetchUserId() ?: "").first().find { it.id == id } ?: return@launch
+            val userId = SessionManager(this@HistoryActivity).fetchUserId() ?: ""
+            val trail = repository.getTrailsByUser(userId).first().find { it.id == id } ?: return@launch
 
-            val layout = LinearLayout(this@HistoryActivity)
-            layout.orientation = LinearLayout.VERTICAL
-            layout.setPadding(50, 40, 50, 10)
+            val layout = LinearLayout(this@HistoryActivity).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(50, 40, 50, 10)
+            }
 
-            val inputName = EditText(this@HistoryActivity)
-            inputName.setText(trail.name)
-            inputName.hint = "Nome do trilho"
+            val inputName = EditText(this@HistoryActivity).apply {
+                setText(trail.name)
+                hint = getString(R.string.edit_trail_title)
+            }
             layout.addView(inputName)
 
-            val checkPublic = CheckBox(this@HistoryActivity)
-            checkPublic.text = getString(R.string.public_mode)
-            checkPublic.isChecked = trail.isPublic
-            checkPublic.setPadding(0, 20, 0, 20)
+            val checkPublic = CheckBox(this@HistoryActivity).apply {
+                text = getString(R.string.public_mode)
+                isChecked = trail.isPublic
+                setPadding(0, 20, 0, 20)
+            }
             layout.addView(checkPublic)
 
             AlertDialog.Builder(this@HistoryActivity)
@@ -124,17 +132,23 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Confirmação antes de eliminar um trilho local.
+     */
     private fun showDeleteConfirmation(id: Long) {
         AlertDialog.Builder(this)
             .setTitle(R.string.delete_trail_title)
             .setMessage(R.string.delete_trail_msg)
-            .setPositiveButton(R.string.delete) { _, _ ->
-                viewModel.deleteTrail(id)
-            }
+            .setPositiveButton(R.string.delete) { _, _ -> viewModel.deleteTrail(id) }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
+    /**
+     * Gere o processo de sincronização bidirecional:
+     * 1. Upload: Envia trilhos locais para a API no Render (atualiza se já existir).
+     * 2. Download: Recupera trilhos do servidor que não existem no armazenamento local.
+     */
     private fun syncTrailsWithApi() {
         val sessionManager = SessionManager(this)
         val userId = sessionManager.fetchUserId() ?: return
@@ -144,7 +158,7 @@ class HistoryActivity : AppCompatActivity() {
             try {
                 Toast.makeText(this@HistoryActivity, "Sincronizando...", Toast.LENGTH_SHORT).show()
 
-                // --- 1. UPLOAD: Enviar APENAS os trilhos do utilizador logado ---
+                // UPLOAD: Sincroniza trilhos locais para a Cloud
                 val localTrails = repository.getTrailsByUser(userId).first()
                 for (trail in localTrails) {
                     val points = repository.getPoints(trail.id).first()
@@ -155,24 +169,20 @@ class HistoryActivity : AppCompatActivity() {
                         durationSeconds = trail.durationSeconds,
                         createdAt = trail.createdAt,
                         userId = userId,
-                        isPublic = trail.isPublic, // AGORA ENVIA A PRIVACIDADE REAL
-                        points = points.map { p ->
-                            PointDTO(p.latitude, p.longitude, p.timestamp, p.orderIndex)
-                        }
+                        isPublic = trail.isPublic,
+                        points = points.map { p -> PointDTO(p.latitude, p.longitude, p.timestamp, p.orderIndex) }
                     )
                     RetrofitClient.instance.createTrail(trailDto)
                 }
 
-                // --- 2. DOWNLOAD: Recuperar trilhos da API que não estão locais ---
+                // DOWNLOAD: Recupera dados da Cloud para o telemóvel
                 val apiTrails = RetrofitClient.instance.getUserTrails(userId)
-                
-                // Refresh da lista local após o upload para ter a certeza do que já existe
                 val updatedLocalTrails = repository.getTrailsByUser(userId).first()
 
                 for (apiTrail in apiTrails) {
                     val exists = updatedLocalTrails.any { it.createdAt == apiTrail.createdAt }
                     if (!exists) {
-                        val newTrailId = repository.insertTrail(
+                        val newId = repository.insertTrail(
                             Trail(
                                 name = apiTrail.name,
                                 description = apiTrail.description,
@@ -184,13 +194,11 @@ class HistoryActivity : AppCompatActivity() {
                             )
                         )
                         for (p in apiTrail.points) {
-                            repository.addPoint(newTrailId, p.latitude, p.longitude, p.orderIndex)
+                            repository.addPoint(newId, p.latitude, p.longitude, p.orderIndex)
                         }
                     }
                 }
-
                 Toast.makeText(this@HistoryActivity, "Sincronização concluída!", Toast.LENGTH_SHORT).show()
-
             } catch (e: Exception) {
                 Toast.makeText(this@HistoryActivity, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             }

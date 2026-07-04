@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -21,16 +22,19 @@ import pt.ipt.dama2026.trekka.service.TrackingService
 import pt.ipt.dama2026.trekka.viewmodel.TrailViewModel
 import pt.ipt.dama2026.trekka.viewmodel.TrailViewModelFactory
 
+/**
+ * Atividade Principal da aplicação Trekka.
+ * Gere o início e fim da gravação de trilhos, navegação para histórico/exploração,
+ * troca de idioma, autenticação (logout) e alternância de tema claro/escuro.
+ */
 class MainActivity : AppCompatActivity() {
-
-    private var activeTrailId: Long = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // 1. PRIMEIRO: Encontrar os botões no layout
+        // Inicialização de componentes da UI
         val startButton = findViewById<Button>(R.id.startButton)
         val historyButton = findViewById<Button>(R.id.historyButton)
         val exploreButton = findViewById<Button>(R.id.exploreButton)
@@ -38,12 +42,21 @@ class MainActivity : AppCompatActivity() {
         val aboutButton = findViewById<android.widget.ImageButton>(R.id.aboutButton)
         val themeButton = findViewById<android.widget.ImageButton>(R.id.themeButton)
         val logoutButton = findViewById<android.widget.ImageButton>(R.id.logoutButton)
+        val txtWelcomeUser = findViewById<TextView>(R.id.txtWelcomeUser)
 
-        // 2. SEGUNDO: Inicializar o ViewModel
+        // Mostrar nome do utilizador autenticado
+        val userName = pt.ipt.dama2026.trekka.data.api.SessionManager(this).fetchUserName()
+        if (userName != null) {
+            txtWelcomeUser.text = getString(R.string.welcome_user, userName)
+        } else {
+            txtWelcomeUser.visibility = View.GONE
+        }
+
+        // Configuração do ViewModel para gestão de dados do trilho
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
         val viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
 
-        // 3. TERCEIRO: Configurar o Launcher de Permissões (agora ele já conhece o startButton)
+        // Launcher para gerir o pedido de permissão de localização
         val requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -55,7 +68,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 4. Configurar o Observer para iniciar o serviço quando o ID for criado
+        // Observa a criação de um novo trilho para iniciar o serviço de tracking em background
         viewModel.currentTrailId.observe(this) { id ->
             if (id != null) {
                 val svcIntent = Intent(this, TrackingService::class.java).apply {
@@ -66,27 +79,26 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 5. Definir o texto inicial do botão se o serviço já estiver a correr
+        // Mantém o estado visual do botão se a app for reaberta com o serviço a correr
         if (isServiceRunning(TrackingService::class.java)) {
             startButton.text = getString(R.string.stop_button)
             startButton.setBackgroundResource(R.drawable.button_stop_ripple)
         }
 
-        // Clique do botão Iniciar/Parar
+        // Lógica do botão principal (Começar/Parar)
         startButton.setOnClickListener {
             if (isServiceRunning(TrackingService::class.java)) {
+                // Ao parar, recuperamos o ID do trilho ativo para definir a privacidade
                 val prefs = getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE)
                 val activeId = prefs.getLong("active_trail_id", -1)
                 
                 if (activeId != -1L) {
                     showPrivacyDialog(activeId, startButton)
                 } else {
-                    // Fallback se não encontrarmos o ID
-                    stopService(Intent(this, TrackingService::class.java))
-                    startButton.text = getString(R.string.start_button)
-                    startButton.setBackgroundResource(R.drawable.button_ripple)
+                    finalizeTrail(startButton)
                 }
             } else {
+                // Antes de começar, verificamos permissões
                 val hasLocationPermission = ContextCompat.checkSelfPermission(
                     this, Manifest.permission.ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED
@@ -102,24 +114,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Clique do botão Histórico
+        // Navegação para Histórico Local
         historyButton.setOnClickListener {
             startActivity(Intent(this, HistoryActivity::class.java))
         }
 
-        // Clique do botão Explorar
+        // Navegação para Explorar Trilhos Públicos (Comunitário)
         exploreButton.setOnClickListener {
             startActivity(Intent(this, ExploreActivity::class.java))
         }
 
-        // Ajustar padding das barras do sistema
+        // Ajuste de paddings para o design Edge-to-Edge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Clique para trocar idioma
+        // Alternância de Idioma (PT/EN)
         languageBox.setOnClickListener {
             val currentLocale = AppCompatDelegate.getApplicationLocales()[0]?.language ?: "pt"
             val newLocale = if (currentLocale == "pt") "en" else "pt"
@@ -127,19 +139,19 @@ class MainActivity : AppCompatActivity() {
             AppCompatDelegate.setApplicationLocales(appLocale)
         }
 
-        // Clique para abrir o Sobre
+        // Acesso à secção "Sobre" (Obrigatório por regulamento)
         aboutButton.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
         }
 
-        // Clique para Logout
+        // Encerramento de Sessão
         logoutButton.setOnClickListener {
             pt.ipt.dama2026.trekka.data.api.SessionManager(this).logout()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
-        // Clique para alternar o Tema (Claro/Escuro)
+        // Alternância de Tema (Modo Escuro / Modo Claro)
         themeButton.setOnClickListener {
             val currentMode = AppCompatDelegate.getDefaultNightMode()
             if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
@@ -150,7 +162,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Função auxiliar para verificar o estado do serviço
+    /**
+     * Verifica se um determinado serviço está em execução.
+     */
     private fun <T> isServiceRunning(serviceClass: Class<T>): Boolean {
         val am = getSystemService(ACTIVITY_SERVICE) as ActivityManager
         @Suppress("DEPRECATION")
@@ -160,6 +174,9 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    /**
+     * Exibe o diálogo para o utilizador decidir se o trilho deve ser Público ou Privado.
+     */
     private fun showPrivacyDialog(trailId: Long, startButton: Button) {
         val factory = TrailViewModelFactory((application as TrekkaApplication).repository)
         val viewModel = ViewModelProvider(this, factory)[TrailViewModel::class.java]
@@ -179,12 +196,14 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * Encerra o serviço de tracking e limpa o estado visual.
+     */
     private fun finalizeTrail(startButton: Button) {
         stopService(Intent(this, TrackingService::class.java))
         startButton.text = getString(R.string.start_button)
         startButton.setBackgroundResource(R.drawable.button_ripple)
         
-        // Limpar o ID da memória
         getSharedPreferences("trekka_prefs", Context.MODE_PRIVATE).edit().remove("active_trail_id").apply()
     }
 }

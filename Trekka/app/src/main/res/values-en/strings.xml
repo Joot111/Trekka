@@ -37,6 +37,8 @@
     <string name="error_empty_fields">Fill all fields</string>
     <string name="login_success">Login successful</string>
     <string name="login_error">Error logging in. Check your data.</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="invalid_password">Password must have at least 6 characters</string>
     <string name="register_success">Account created successfully</string>
     <string name="register_error">Error creating account.</string>
     <string name="logout">Logout</string>
@@ -58,4 +60,10 @@
     <string name="privacy_dialog_msg">Do you want to make this trail public for the community?</string>
     <string name="public_mode">Public</string>
     <string name="private_mode">Private</string>
+    <string name="total_distance">Total Distance</string>
+    <string name="total_trails">Total Trails</string>
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_moderate">Moderate</string>
+    <string name="difficulty_hard">Hard</string>
+    <string name="welcome_user">Hello, %s!</string>
 </resources>

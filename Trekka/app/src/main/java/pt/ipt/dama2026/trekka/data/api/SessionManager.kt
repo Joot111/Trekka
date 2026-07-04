@@ -28,6 +28,10 @@ class SessionManager(context: Context) {
         return prefs.getString(USER_ID, null)
     }
 
+    fun fetchUserName(): String? {
+        return prefs.getString(USER_NAME, null)
+    }
+
     fun saveUser(user: User) {
         val editor = prefs.edit()
         editor.putString(USER_ID, user.id)
